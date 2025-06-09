@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, BarChart2, Shield, LandmarkIcon, Sparkles } from "lucide-react";
+import { CheckCircle, BarChart2, Shield, LandmarkIcon, Sparkles, UserPlus, LayoutGrid } from "lucide-react"; // Added LayoutGrid
 import Image from "next/image";
 import Link from "next/link";
 
@@ -12,17 +12,17 @@ export default function HomePage() {
       <section className="text-center py-12 md:py-20 bg-gradient-to-br from-primary/10 via-background to-accent/10 rounded-xl shadow-lg">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl md:text-5xl font-bold font-headline mb-6">
-            Welcome to <span className="text-primary">Finance Flow Admin</span>
+            Welcome to <span className="text-primary">Finance Flow</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Manage financial plans, user applications, and platform settings through the Admin Dashboard.
+            Your trusted partner in financial planning and investment. Manage your profile, explore plans, and get AI-powered recommendations. Admins can manage the platform.
           </p>
           <div className="space-x-4">
             <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-              <Link href="/admin">Go to Dashboard</Link>
+              <Link href="/plans">Explore Plans</Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/5">
-              <Link href="/login">Admin Login</Link>
+              <Link href="/signup">Get Started</Link>
             </Button>
           </div>
         </div>
@@ -30,48 +30,48 @@ export default function HomePage() {
 
       {/* Features Section */}
       <section className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-12 font-headline">Admin Platform Features</h2>
+        <h2 className="text-3xl font-bold text-center mb-12 font-headline">Platform Features</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           <FeatureCard
-            icon={<BarChart2 className="h-10 w-10 text-primary" />}
-            title="Plan Management"
-            description="Create, view, and manage investment, insurance, FD, and loan options."
+            icon={<UserPlus className="h-10 w-10 text-primary" />}
+            title="Personalized Profiles"
+            description="Create and manage your financial profile with ease."
+          />
+          <FeatureCard
+            icon={<LayoutGrid className="h-10 w-10 text-primary" />}
+            title="Diverse Plans"
+            description="Explore investment, insurance, FD, and loan options tailored for you."
+          />
+           <FeatureCard
+            icon={<Sparkles className="h-10 w-10 text-primary" />}
+            title="AI Recommendations"
+            description="Leverage AI-powered recommendations for financial planning insights."
           />
           <FeatureCard
             icon={<Shield className="h-10 w-10 text-primary" />}
             title="Secure & Reliable"
-            description="Built with security in mind to protect platform data and operations."
-          />
-          <FeatureCard
-            icon={<LandmarkIcon className="h-10 w-10 text-primary" />}
-            title="Application Review"
-            description="Oversee and manage applications submitted for various financial plans."
-          />
-          <FeatureCard
-            icon={<Sparkles className="h-10 w-10 text-primary" />}
-            title="AI Insights"
-            description="Leverage AI-powered recommendations for financial planning insights."
+            description="Built with security in mind to protect your data and operations."
           />
         </div>
       </section>
 
       {/* How it Works Section */}
       <section className="container mx-auto px-4 py-12 bg-card rounded-xl shadow-lg">
-        <h2 className="text-3xl font-bold text-center mb-12 font-headline">Admin Workflow</h2>
+        <h2 className="text-3xl font-bold text-center mb-12 font-headline">Get Started in 3 Easy Steps</h2>
         <div className="grid md:grid-cols-3 gap-8 text-center">
           <StepCard
             step="1"
-            title="Secure Admin Access"
-            description="Log in with your administrator credentials to manage the platform."
+            title="Create Your Profile"
+            description="Sign up and complete your profile with your name, mobile, and income to start exploring financial plans."
             imageUrl="https://placehold.co/600x400.png"
-            aiHint="secure login"
+            aiHint="user profile registration"
           />
           <StepCard
             step="2"
-            title="Manage Plans & Applications"
-            description="Oversee financial plans and review user applications through the dashboard."
+            title="Explore & Apply for Plans"
+            description="Browse various financial plans and apply for those that suit your goals."
             imageUrl="https://placehold.co/600x400.png"
-            aiHint="dashboard management"
+            aiHint="financial planning"
           />
           <StepCard
             step="3"
