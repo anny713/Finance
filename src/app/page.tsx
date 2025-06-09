@@ -69,14 +69,14 @@ export default function HomePage() {
             title="Post & Manage Plans"
             description="Admins can easily post new financial plans (investment, insurance, etc.) and update existing ones."
             imageUrl="https://placehold.co/600x400.png"
-            aiHint="financial planning"
+            aiHint="plan management"
           />
           <StepCard
             step="3"
             title="Review Applications"
             description="View applications submitted by users for the plans you've posted."
             imageUrl="https://placehold.co/600x400.png"
-            aiHint="AI analytics"
+            aiHint="application review"
           />
         </div>
       </section>
@@ -123,4 +123,3 @@ function StepCard({ step, title, description, imageUrl, aiHint }: StepCardProps)
     </div>
   );
 }
-
