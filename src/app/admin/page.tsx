@@ -1,13 +1,22 @@
+
 'use client';
 
+import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { FilePlus, ListChecks, Users } from 'lucide-react'; // Assuming Users might be for managing users later
+import { FilePlus, ListChecks } from 'lucide-react';
 
 export default function AdminDashboardPage() {
+  const { user } = useAuth();
+
   return (
     <div>
+      {user && user.name && (
+        <h2 className="text-2xl font-semibold mb-2 text-muted-foreground">
+          Welcome, {user.name}!
+        </h2>
+      )}
       <h1 className="text-3xl font-bold mb-8 font-headline">Admin Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card className="shadow-md hover:shadow-lg transition-shadow">
