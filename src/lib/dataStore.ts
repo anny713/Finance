@@ -1,12 +1,10 @@
 
-import type { Plan, Application, PlanCategory } from '@/types';
+import type { Plan } from '@/types';
 
-const PLANS_KEY = 'financeFlow_plans';
-// const APPLICATIONS_KEY = 'financeFlow_applications'; // No longer used for applications
+// const PLANS_KEY = 'financeFlow_plans'; // Removed, plans are now in Firestore
 
-const isClient = typeof window !== 'undefined';
-
-const initialPlans: Plan[] = [
+// Initial plans data, will be used to seed Firestore if the 'plans' collection is empty.
+export const initialPlans: Plan[] = [
   {
     id: 'plan1',
     title: 'Growth Investment Plan',
@@ -45,31 +43,10 @@ const initialPlans: Plan[] = [
   },
 ];
 
-
-export const getStoredPlans = (): Plan[] => {
-  if (!isClient) return []; // Should ideally return a default or handle server-side if needed
-  const plansStr = localStorage.getItem(PLANS_KEY);
-  if (plansStr) {
-    try {
-      return JSON.parse(plansStr);
-    } catch (e) {
-        console.error("Error parsing plans from localStorage", e);
-        // Fallback to initial plans if parsing fails
-        localStorage.setItem(PLANS_KEY, JSON.stringify(initialPlans));
-        return initialPlans;
-    }
-  }
-  // Initialize with default plans if nothing is stored
-  localStorage.setItem(PLANS_KEY, JSON.stringify(initialPlans));
-  return initialPlans;
-};
-
-export const storePlans = (plans: Plan[]): void => {
-  if (!isClient) return;
-  localStorage.setItem(PLANS_KEY, JSON.stringify(plans));
-};
-
-// Functions getStoredApplications and storeApplications are removed as applications are now handled by Firestore.
+// getStoredPlans and storePlans are removed as plans are now managed in Firestore via server actions.
+// Applications are also managed via Firestore (kept for reference of what was removed).
+// const APPLICATIONS_KEY = 'financeFlow_applications';
+// const isClient = typeof window !== 'undefined';
 // export const getStoredApplications = (): Application[] => {
 //   if (!isClient) return [];
 //   const applications = localStorage.getItem(APPLICATIONS_KEY);
