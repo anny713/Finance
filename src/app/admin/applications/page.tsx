@@ -17,7 +17,8 @@ export default function AdminApplicationsPage() {
     async function fetchApplications() {
       setIsLoading(true);
       const fetchedApplications = await getApplicationsAction();
-      fetchedApplications.sort((a, b) => new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime());
+      // Firestore query already orders by 'appliedAt' desc, client-side sort can be removed or kept as a fallback.
+      // fetchedApplications.sort((a, b) => new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime());
       setApplications(fetchedApplications);
       setIsLoading(false);
     }
