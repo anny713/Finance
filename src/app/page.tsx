@@ -115,7 +115,7 @@ function StepCard({ step, title, description, imageUrl, aiHint }: StepCardProps)
   return (
     <div className="flex flex-col items-center">
       <div className="relative w-full h-40 mb-4 rounded-lg overflow-hidden shadow-md">
-        <Image src={imageUrl} alt={title} layout="fill" objectFit="cover" data-ai-hint={aiHint} />
+        <Image src={imageUrl} alt={title} fill className="object-cover" data-ai-hint={aiHint} />
       </div>
       <div className="bg-primary text-primary-foreground rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold mb-3">
         {step}

@@ -8,7 +8,8 @@ import { getIconComponent } from '@/lib/icons';
 import { useToast } from '@/hooks/use-toast';
 import { applyForPlanAction } from '@/actions/plans';
 import { useAuth } from '@/hooks/useAuth';
-import { useState }ikaimport { Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
 
 interface PlanCardProps {
   plan: Plan;
@@ -48,8 +49,8 @@ export function PlanCard({ plan }: PlanCardProps) {
           <Image
             src={plan.imageUrl}
             alt={plan.title}
-            layout="fill"
-            objectFit="cover"
+            fill
+            className="object-cover"
             data-ai-hint={`${plan.category.toLowerCase()} finance`}
           />
         </div>
