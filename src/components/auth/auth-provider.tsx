@@ -67,7 +67,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     email: firebaseUser.email,
                     name: 'Anjali P (Admin)', // Default admin name
                     isAdmin: true, // Crucially set isAdmin to true
+                    // @ts-ignore
                     createdAt: serverTimestamp(),
+                    // @ts-ignore
                     updatedAt: serverTimestamp(),
                 };
                 await setDoc(userDocRef, adminProfile);
@@ -114,6 +116,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           email: firebaseUser.email || firestoreData.email,
           name: firestoreData.name,
           mobile: firestoreData.mobile,
+          income: firestoreData.income,
           isAdmin: true,
         };
         setUser(appUser);
@@ -135,8 +138,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             await setDoc(userDocRef, adminProfileData);
             const appUser: User = {
                 id: firebaseUser.uid,
-                email: firebaseUser.email,
+                email: firebaseUser.email!,
                 name: adminProfileData.name,
+                income: undefined, // Or a default value
                 isAdmin: true,
             };
             setUser(appUser);
