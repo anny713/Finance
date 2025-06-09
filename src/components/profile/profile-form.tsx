@@ -39,7 +39,9 @@ export function ProfileForm({ user, onUpdate }: ProfileFormProps) {
     };
 
     if (!user.isAdmin) {
-      updatedUser.income = income ? parseFloat(income) : undefined;
+      // Ensure income is a number or undefined if empty
+      const incomeValue = parseFloat(income);
+      updatedUser.income = isNaN(incomeValue) ? undefined : incomeValue;
     }
 
     try {
@@ -107,4 +109,3 @@ export function ProfileForm({ user, onUpdate }: ProfileFormProps) {
     </form>
   );
 }
-

@@ -4,26 +4,24 @@
 import React, { createContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import type { User } from '@/types';
 import { getStoredUsers, storeUsers, getStoredCurrentUser, storeCurrentUser } from '@/lib/authStore';
-import { useRouter } from 'next/navigation';
+import { useRouter }
+from 'next/navigation';
 
 export interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password_DoNotStore: string) => Promise<boolean>; // Changed username to email
-  signup: (email: string, password_DoNotStore: string) => Promise<boolean>; // Re-enabled
+  login: (email: string, password_DoNotStore: string) => Promise<boolean>;
+  signup: (email: string, password_DoNotStore: string) => Promise<boolean>;
   logout: () => void;
   updateCurrentUser: (updatedUser: Partial<User>) => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const ADMIN_LOGIN_EMAIL = 'admin@finance.flow'; // Changed from ADMIN_USERNAME
-const ADMIN_PASSWORD = '123';
+const ADMIN_LOGIN_EMAIL = 'admin@finance.flow';
+const ADMIN_PASSWORD = '123'; // As per earlier request
 const ADMIN_NAME = 'Anjali';
 const ADMIN_ID = 'admin_user_anjali_001';
-
-// WARNING: Storing passwords directly in localStorage is insecure and for prototype purposes ONLY.
-// In a real application, passwords must be hashed and verified securely on a server.
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -39,19 +37,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = useCallback(async (email: string, password_DoNotStore: string): Promise<boolean> => {
     setIsLoading(true);
 
-    // Admin login check
     if (email.toLowerCase() === ADMIN_LOGIN_EMAIL && password_DoNotStore === ADMIN_PASSWORD) {
       const adminUser: User = {
         id: ADMIN_ID,
         email: ADMIN_LOGIN_EMAIL,
         name: ADMIN_NAME,
         isAdmin: true,
-        // Admin does not have an income field
       };
       setUser(adminUser);
       storeCurrentUser(adminUser);
-
-      // Ensure admin user exists in the main user list or add them
       let users = getStoredUsers();
       const adminIndex = users.findIndex(u => u.id === adminUser.id);
       if (adminIndex > -1) {
@@ -60,13 +54,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         users.push({ ...adminUser, password_INTERNAL_USE_ONLY: ADMIN_PASSWORD });
       }
       storeUsers(users);
-
       setIsLoading(false);
       router.push('/admin');
       return true;
     }
 
-    // Regular user login check
     const users = getStoredUsers();
     const foundUser = users.find(
       u => u.email.toLowerCase() === email.toLowerCase() && u.password_INTERNAL_USE_ONLY === password_DoNotStore && !u.isAdmin
@@ -77,7 +69,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUser(userToStore);
       storeCurrentUser(userToStore);
       setIsLoading(false);
-      router.push(userToStore.name && userToStore.mobile && typeof userToStore.income === 'number' ? '/plans' : '/profile'); // Redirect based on profile completion
+      // Redirect to profile if essential info is missing, otherwise to plans
+      if (!userToStore.name || !userToStore.mobile || typeof userToStore.income !== 'number') {
+        router.push('/profile');
+      } else {
+        router.push('/plans');
+      }
       return true;
     }
     
@@ -92,7 +89,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     if (existingUser) {
       setIsLoading(false);
-      return false; // User already exists
+      return false; 
     }
 
     const newUser: User & { password_INTERNAL_USE_ONLY: string } = {
@@ -100,7 +97,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       email: email.toLowerCase(),
       isAdmin: false,
       // Name, mobile, income will be set in profile
-      password_INTERNAL_USE_ONLY: password_DoNotStore, // Storing password for prototype login
+      password_INTERNAL_USE_ONLY: password_DoNotStore,
     };
     
     users.push(newUser);
@@ -125,25 +122,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(prevUser => {
       if (!prevUser) return null;
       
-      const { isAdmin: newIsAdminFlag, income: newIncome, ...restOfUpdateData } = updatedUserData;
-      
-      let newUserData: User = { ...prevUser, ...restOfUpdateData };
+      const newUserData: User = { ...prevUser, ...updatedUserData };
 
-      if (prevUser.id === ADMIN_ID) { // Admin specific logic
+      if (prevUser.id === ADMIN_ID) {
         newUserData.isAdmin = true; 
-        if (newUserData.hasOwnProperty('income')) {
-           delete newUserData.income;
-        }
-      } else { // Regular user logic
-        if (newIncome !== undefined) {
-          newUserData.income = newIncome;
-        }
-        // Ensure non-admin cannot set isAdmin flag
-        if (newIsAdminFlag !== undefined && newIsAdminFlag !== prevUser.isAdmin) {
-          newUserData.isAdmin = prevUser.isAdmin; // Revert
-        } else if (newIsAdminFlag === undefined) {
-          newUserData.isAdmin = false; // Default for non-admin if not specified
-        }
+        delete newUserData.income; // Ensure admin cannot have income
+      } else {
+        newUserData.isAdmin = false; // Ensure regular users are not admins
+        // Income is handled by updatedUserData
       }
       
       storeCurrentUser(newUserData);
@@ -151,7 +137,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       let users = getStoredUsers();
       users = users.map(u => {
         if (u.id === newUserData.id) {
-          // Retrieve stored password to keep it if user has one
           const existingStoredUser = users.find(usr => usr.id === newUserData.id);
           const password_INTERNAL_USE_ONLY = existingStoredUser?.password_INTERNAL_USE_ONLY;
           return { ...newUserData, password_INTERNAL_USE_ONLY };
@@ -163,7 +148,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return newUserData;
     });
   }, []);
-
 
   return (
     <AuthContext.Provider value={{ user, isLoading, login, signup, logout, updateCurrentUser }}>

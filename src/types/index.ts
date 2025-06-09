@@ -43,4 +43,3 @@ export type NavItem = {
   loggedInOnly?: boolean;
   loggedOutOnly?: boolean;
 };
-

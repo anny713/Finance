@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect } from 'react';
@@ -13,7 +14,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push('/login');
+      router.push('/login?redirect=/profile'); // Added redirect query param
     }
   }, [user, isLoading, router]);
 
@@ -30,7 +31,7 @@ export default function ProfilePage() {
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="text-2xl font-headline">Your Profile</CardTitle>
-          <CardDescription>Manage your personal information and preferences.</CardDescription>
+          <CardDescription>Manage your personal information and preferences. Fill in your name, mobile, and income to get started.</CardDescription>
         </CardHeader>
         <CardContent>
           <ProfileForm user={user} onUpdate={updateCurrentUser} />
