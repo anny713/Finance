@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, BarChart2, Shield, LandmarkIcon, Sparkles, UserPlus, LayoutGrid, UserCog } from "lucide-react"; 
+import { CheckCircle, BarChart2, Shield, LayoutGrid, Sparkles, UserCog, LandmarkIcon } from "lucide-react"; 
 import Image from "next/image";
 import Link from "next/link";
 
@@ -15,14 +15,14 @@ export default function HomePage() {
             Welcome to <span className="text-primary">Finance Flow</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Your trusted partner in financial planning and investment. Manage your profile, explore plans, and get AI-powered recommendations. Admins manage the platform.
+            Your trusted platform for financial plan management and AI-powered insights. Admins manage plans and view applications.
           </p>
           <div className="space-x-4">
             <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
               <Link href="/plans">Explore Plans</Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/5">
-              <Link href="/login">Get Started</Link>
+              <Link href="/login">Admin Login</Link>
             </Button>
           </div>
         </div>
@@ -35,17 +35,17 @@ export default function HomePage() {
           <FeatureCard
             icon={<UserCog className="h-10 w-10 text-primary" />}
             title="Admin Management"
-            description="Admins can manage plans and view user applications."
+            description="Admins can create, update, and manage financial plans. View submitted applications."
           />
           <FeatureCard
             icon={<LayoutGrid className="h-10 w-10 text-primary" />}
             title="Diverse Plans"
-            description="Explore investment, insurance, FD, and loan options tailored for you."
+            description="Offer investment, insurance, FD, and loan options for users to explore."
           />
            <FeatureCard
             icon={<Sparkles className="h-10 w-10 text-primary" />}
             title="AI Recommendations"
-            description="Leverage AI-powered recommendations for financial planning insights."
+            description="Admins can leverage AI-powered recommendations for financial planning insights (via admin tools)."
           />
           <FeatureCard
             icon={<Shield className="h-10 w-10 text-primary" />}
@@ -62,21 +62,21 @@ export default function HomePage() {
           <StepCard
             step="1"
             title="Secure Admin Access"
-            description="Log in with your administrator credentials to manage the platform."
+            description="Log in with your administrator credentials to manage the platform and financial plans."
             imageUrl="https://placehold.co/600x400.png"
             aiHint="secure login"
           />
           <StepCard
             step="2"
-            title="Explore & Apply for Plans"
-            description="Browse various financial plans and apply for those that suit your goals."
+            title="Post & Manage Plans"
+            description="Admins can easily post new financial plans (investment, insurance, etc.) and update existing ones."
             imageUrl="https://placehold.co/600x400.png"
             aiHint="financial planning"
           />
           <StepCard
             step="3"
-            title="Utilize AI Tools"
-            description="Access AI-driven insights for investment recommendations and analysis."
+            title="Review Applications"
+            description="View applications submitted by users for the plans you've posted."
             imageUrl="https://placehold.co/600x400.png"
             aiHint="AI analytics"
           />

@@ -4,8 +4,7 @@
 import React, { createContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import type { User } from '@/types';
 import { getStoredUsers, storeUsers, getStoredCurrentUser, storeCurrentUser } from '@/lib/authStore';
-import { useRouter }
-from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 export interface AuthContextType {
   user: User | null;
@@ -18,7 +17,7 @@ export interface AuthContextType {
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const ADMIN_LOGIN_EMAIL = 'admin@finance.flow';
-const ADMIN_PASSWORD = '123'; 
+const ADMIN_PASSWORD = '123';
 const ADMIN_NAME = 'Anjali';
 const ADMIN_ID = 'admin_user_anjali_001';
 
@@ -45,6 +44,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       };
       setUser(adminUser);
       storeCurrentUser(adminUser);
+      // Ensure admin user exists in the general users list for consistency if needed elsewhere
       let users = getStoredUsers();
       const adminIndex = users.findIndex(u => u.id === adminUser.id);
       if (adminIndex > -1) {
@@ -57,26 +57,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       router.push('/admin');
       return true;
     }
-
-    const users = getStoredUsers();
-    const foundUser = users.find(
-      u => u.email.toLowerCase() === email.toLowerCase() && u.password_INTERNAL_USE_ONLY === password_DoNotStore && !u.isAdmin
-    );
-
-    if (foundUser) {
-      const { password_INTERNAL_USE_ONLY, ...userToStore } = foundUser;
-      setUser(userToStore);
-      storeCurrentUser(userToStore);
-      setIsLoading(false);
-      // Redirect to profile if essential info is missing, otherwise to plans
-      if (!userToStore.name || !userToStore.mobile || typeof userToStore.income !== 'number') {
-        router.push('/profile');
-      } else {
-        router.push('/plans');
-      }
-      return true;
-    }
     
+    // No regular user login
     setIsLoading(false);
     return false;
   }, [router]);
@@ -93,21 +75,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       const newUserData: User = { ...prevUser, ...updatedUserData };
 
+      // Ensure admin properties are correctly maintained
       if (prevUser.id === ADMIN_ID) {
         newUserData.isAdmin = true; 
-        delete newUserData.income; 
+        delete newUserData.income; // Admins don't have income
       } else {
+        // This case should ideally not be hit if only admin can log in
         newUserData.isAdmin = false; 
       }
       
       storeCurrentUser(newUserData);
       
+      // Update the user in the general users list
       let users = getStoredUsers();
       users = users.map(u => {
         if (u.id === newUserData.id) {
           const existingStoredUser = users.find(usr => usr.id === newUserData.id);
           const password_INTERNAL_USE_ONLY = existingStoredUser?.password_INTERNAL_USE_ONLY;
-          return { ...newUserData, password_INTERNAL_USE_ONLY };
+          // For admin, ensure password is the hardcoded one
+          const finalPassword = newUserData.id === ADMIN_ID ? ADMIN_PASSWORD : password_INTERNAL_USE_ONLY;
+          return { ...newUserData, password_INTERNAL_USE_ONLY: finalPassword };
         }
         return u;
       });

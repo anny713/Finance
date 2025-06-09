@@ -1,7 +1,6 @@
 
 'use client';
 
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,10 +10,8 @@ import { Home, Info } from 'lucide-react';
 export default function SignupPage() {
   const router = useRouter();
 
-  // Optionally redirect immediately, or just show a message.
-  // For now, showing a message that signup is disabled.
-  // useEffect(() => {
-  //   router.push('/'); // Or '/login'
+  // useEffect(() => { // Optional: redirect immediately
+  //   router.push('/login');
   // }, [router]);
 
   return (
@@ -29,6 +26,7 @@ export default function SignupPage() {
           </CardTitle>
           <CardDescription className="dark:text-slate-300 mt-2">
             User registration is currently not available for this application.
+            Only administrators can log in.
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center">
@@ -39,7 +37,7 @@ export default function SignupPage() {
         <div className="mt-6 flex flex-col gap-4">
             <Button asChild variant="outline" className="bg-transparent dark:text-slate-300 dark:border-slate-700 hover:dark:bg-slate-700">
                 <Link href="/login">
-                Go to Login
+                Go to Admin Login
                 </Link>
             </Button>
             <Button asChild variant="ghost" className="dark:text-slate-400 hover:dark:text-slate-200">

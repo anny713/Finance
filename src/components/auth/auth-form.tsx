@@ -7,31 +7,28 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
-import Link from 'next/link';
 
 interface AuthFormProps {
-  mode: 'login'; // Mode is now restricted to login as signup is removed
-  onSubmit: (emailOrUsername: string, password_DoNotStore: string) => Promise<void>;
+  // mode prop is removed as it's always for admin login
+  onSubmit: (email: string, password_DoNotStore: string) => Promise<void>;
   errorMessage?: string | null;
 }
 
-export function AuthForm({ mode, onSubmit, errorMessage }: AuthFormProps) {
-  const [identifier, setIdentifier] = useState(''); 
+export function AuthForm({ onSubmit, errorMessage }: AuthFormProps) {
+  const [email, setEmail] = useState(''); 
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setIsLoading(true);
-    await onSubmit(identifier, password);
+    await onSubmit(email, password);
     setIsLoading(false);
   };
 
-  // Since mode is always 'login', we can simplify these
-  const pageTitle = 'Admin Panel / User Login';
-  const identifierLabel = 'Email'; // Admin logs in with email
-  const identifierPlaceholder = 'Enter your email';
-  const identifierType = 'email';
+  const pageTitle = 'Admin Login';
+  const identifierLabel = 'Email';
+  const identifierPlaceholder = 'Enter your admin email';
   const buttonText = 'Login';
 
   return (
@@ -47,13 +44,13 @@ export function AuthForm({ mode, onSubmit, errorMessage }: AuthFormProps) {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="identifier" className="dark:text-slate-300">{identifierLabel}</Label>
+            <Label htmlFor="email" className="dark:text-slate-300">{identifierLabel}</Label>
             <Input
-              id="identifier"
-              type={identifierType}
+              id="email"
+              type="email" // Admin logs in with email
               placeholder={identifierPlaceholder}
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
               className="bg-input dark:bg-slate-800 dark:text-slate-50 dark:border-slate-700"
             />
@@ -78,7 +75,7 @@ export function AuthForm({ mode, onSubmit, errorMessage }: AuthFormProps) {
         </form>
       </CardContent>
       <CardFooter className="flex flex-col items-center justify-center pt-6 text-sm">
-        {/* Signup link removed */}
+        {/* Signup link or alternative actions removed */}
       </CardFooter>
     </Card>
   );
