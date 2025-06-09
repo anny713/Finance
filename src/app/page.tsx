@@ -21,9 +21,7 @@ export default function HomePage() {
             <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
               <Link href="/plans">Explore Plans</Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/5">
-              <Link href="/login">Admin Login</Link>
-            </Button>
+            {/* Admin Login button removed */}
           </div>
         </div>
       </section>
