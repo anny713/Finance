@@ -24,9 +24,6 @@ export default function HomePage() {
             <Button asChild size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/5">
               <Link href="/login">Admin Login</Link>
             </Button>
-            <Button asChild size="lg" variant="secondary" className="hover:bg-secondary/80">
-              <Link href="/user-form-example">User Form Demo</Link>
-            </Button>
           </div>
         </div>
       </section>
