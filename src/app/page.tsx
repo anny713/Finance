@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, BarChart2, Shield, LayoutGrid, Sparkles, UserCog, LandmarkIcon } from "lucide-react"; 
+import { CheckCircle, BarChart2, Shield, LayoutGrid, Sparkles, UserCog, LandmarkIcon, FileText } from "lucide-react"; 
 import Image from "next/image";
 import Link from "next/link";
 
@@ -17,12 +17,15 @@ export default function HomePage() {
           <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
             Your trusted platform for financial plan management and AI-powered insights. Admins manage plans and view applications.
           </p>
-          <div className="space-x-4">
+          <div className="flex flex-wrap justify-center items-center gap-4">
             <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
               <Link href="/plans">Explore Plans</Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/5">
               <Link href="/login">Admin Login</Link>
+            </Button>
+            <Button asChild size="lg" variant="secondary" className="hover:bg-secondary/80">
+              <Link href="/user-form-example">User Form Demo</Link>
             </Button>
           </div>
         </div>
@@ -95,7 +98,7 @@ interface FeatureCardProps {
 
 function FeatureCard({ icon, title, description }: FeatureCardProps) {
   return (
-    <Card className="text-center p-6 shadow-md hover:shadow-lg transition-shadow">
+    <Card className="text-center p-6 shadow-md hover:shadow-lg transition-shadow rounded-lg">
       <div className="flex justify-center mb-4">{icon}</div>
       <h3 className="text-xl font-semibold mb-2 font-headline">{title}</h3>
       <p className="text-muted-foreground text-sm">{description}</p>
@@ -113,7 +116,7 @@ interface StepCardProps {
 
 function StepCard({ step, title, description, imageUrl, aiHint }: StepCardProps) {
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center p-4">
       <div className="relative w-full h-40 mb-4 rounded-lg overflow-hidden shadow-md">
         <Image src={imageUrl} alt={title} fill className="object-cover" data-ai-hint={aiHint} />
       </div>
@@ -125,3 +128,4 @@ function StepCard({ step, title, description, imageUrl, aiHint }: StepCardProps)
     </div>
   );
 }
+
