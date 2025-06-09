@@ -20,8 +20,8 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 const ADMIN_LOGIN_EMAIL = 'admin@finance.flow';
 const ADMIN_PASSWORD = '123';
-const ADMIN_NAME = 'Anjali';
-const ADMIN_ID = 'admin_user_anjali_001';
+const ADMIN_NAME = 'Anjali'; // Default name if not found in Firestore for the admin
+const ADMIN_ID = 'RpFANN3bnoeaMdnGBZJJZKyDndt2'; // Updated to the provided UID
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -48,13 +48,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 isAdmin: true,
               };
             } else {
-              console.warn("Admin session rehydration failed: Firestore record indicates not an admin or isAdmin field missing.");
+              console.warn("Admin session rehydration failed: Firestore record indicates not an admin or isAdmin field missing for UID:", localUser.id);
             }
-          } else { // Potentially for other user types in the future
-            // For now, only admin logs in. If other users could, their isAdmin status in Firestore would be key.
+          } else { 
              validatedUser = { 
                 id: docSnap.id, 
-                email: localUser.email, // Assume email from localUser or ensure it's in firestoreData
+                email: localUser.email, 
                 name: firestoreData.name,
                 mobile: firestoreData.mobile,
                 income: firestoreData.income,
@@ -66,12 +65,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setUser(validatedUser);
             storeCurrentUser(validatedUser);
           } else {
-            // Validation failed (e.g., admin not admin in DB)
             setUser(null);
             storeCurrentUser(null);
           }
         } else {
-          // User in localStorage but not in Firestore. Log them out.
           console.warn(`User ${localUser.id} found in localStorage but not in Firestore. Logging out.`);
           setUser(null);
           storeCurrentUser(null);
@@ -79,7 +76,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setIsLoading(false);
       }).catch(error => {
         console.error("Error fetching user from Firestore on initial load:", error);
-        // On any Firestore error during rehydration, log out for safety.
         setUser(null);
         storeCurrentUser(null);
         setIsLoading(false);
@@ -109,12 +105,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               isAdmin: true,
             };
           } else {
-            console.warn(`Admin login attempt for ${ADMIN_LOGIN_EMAIL} failed: Firestore record does not have isAdmin: true.`);
+            console.warn(`Admin login attempt for ${ADMIN_LOGIN_EMAIL} (UID: ${ADMIN_ID}) failed: Firestore record does not have isAdmin: true.`);
             setIsLoading(false);
             return false;
           }
         } else {
-          // Document doesn't exist, bootstrap admin user in Firestore
           adminUserToSet = {
             id: ADMIN_ID,
             email: ADMIN_LOGIN_EMAIL,
@@ -128,7 +123,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp() 
           });
-          console.log(`Admin user ${ADMIN_ID} created in Firestore.`);
+          console.log(`Admin user ${ADMIN_ID} (email: ${adminUserToSet.email}) created in Firestore.`);
         }
         
         if (adminUserToSet) {
@@ -145,7 +140,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     }
     
-    // If not admin credentials or other failure
     setIsLoading(false);
     return false;
   }, [router]);
@@ -168,16 +162,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (updatedProfileData.name !== undefined) dataToSave.name = updatedProfileData.name;
     if (updatedProfileData.mobile !== undefined) dataToSave.mobile = updatedProfileData.mobile;
     
-    // Income update is only for non-admin users (currently no non-admin login)
-    // if (updatedProfileData.income !== undefined && !user.isAdmin) {
-    //  dataToSave.income = updatedProfileData.income;
-    // }
-    
     dataToSave.updatedAt = serverTimestamp();
     
     try {
       await updateDoc(userDocRef, dataToSave);
-      const updatedUser = { ...user, ...dataToSave }; // Note: serverTimestamp won't resolve client-side immediately
+      const updatedUser = { ...user, ...dataToSave }; 
       setUser(updatedUser);
       storeCurrentUser(updatedUser); 
       console.log("User profile updated in Firestore and locally.");
@@ -198,4 +187,3 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     </AuthContext.Provider>
   );
 };
-
