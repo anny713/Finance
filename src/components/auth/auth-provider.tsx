@@ -29,30 +29,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const router = useRouter();
 
   useEffect(() => {
-    // Check localStorage for an existing session
     const localUser = getStoredCurrentUser();
     if (localUser) {
-      // If user found in local storage, fetch their latest profile from Firestore
       setIsLoading(true);
       const userDocRef = doc(db, 'users', localUser.id);
       getDoc(userDocRef).then(docSnap => {
         if (docSnap.exists()) {
           const firestoreUser = { id: docSnap.id, ...docSnap.data() } as User;
-          // Merge with localUser to ensure isAdmin is correctly set from initial admin definition
           const fullUser = { ...firestoreUser, isAdmin: localUser.isAdmin, email: localUser.email };
           setUser(fullUser);
-          storeCurrentUser(fullUser); // Update local storage with fresh data
+          storeCurrentUser(fullUser);
         } else {
-          // User in local storage but not in Firestore (e.g. deleted from DB)
-          // Treat as logged out
           setUser(null);
           storeCurrentUser(null);
         }
         setIsLoading(false);
       }).catch(error => {
         console.error("Error fetching user from Firestore on initial load:", error);
-        // If error fetching, rely on local storage or log out
-        setUser(localUser); // Or setUser(null); storeCurrentUser(null);
+        setUser(localUser);
         setIsLoading(false);
       });
     } else {
@@ -67,7 +61,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       let adminUser: User = {
         id: ADMIN_ID,
         email: ADMIN_LOGIN_EMAIL,
-        name: ADMIN_NAME, // Default name
+        name: ADMIN_NAME,
         isAdmin: true,
       };
 
@@ -78,35 +72,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (docSnap.exists()) {
           const firestoreData = docSnap.data();
           adminUser = {
-            ...adminUser, // Base admin details
-            name: firestoreData.name || ADMIN_NAME, // Use Firestore name or default
+            ...adminUser,
+            name: firestoreData.name || ADMIN_NAME,
             mobile: firestoreData.mobile || undefined,
-            // Ensure email and isAdmin are not overwritten by Firestore if they shouldn't be
             email: ADMIN_LOGIN_EMAIL,
             isAdmin: true,
           };
         } else {
-          // Admin document doesn't exist, create it with default details
-          // This part is optional, admin profile could be pre-created in Firestore
           await setDoc(userDocRef, { 
             email: ADMIN_LOGIN_EMAIL, 
             name: ADMIN_NAME, 
             isAdmin: true, 
             createdAt: serverTimestamp() 
           });
-          // adminUser already has the correct default values
         }
         
         setUser(adminUser);
         storeCurrentUser(adminUser);
-        setIsLoading(false);
         router.push('/admin');
         return true;
 
       } catch (error) {
         console.error("Error during admin login with Firestore:", error);
-        setIsLoading(false);
         return false;
+      } finally {
+        setIsLoading(false);
       }
     }
     
@@ -123,13 +113,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const updateCurrentUser = useCallback(async (updatedProfileData: Partial<User>) => {
     if (!user) {
       console.error("No user logged in to update.");
-      return;
+      throw new Error("No user logged in to update.");
     }
-    setIsLoading(true);
+    setIsLoading(true); // AuthContext's global loading state
     const userDocRef = doc(db, 'users', user.id);
     
-    // Prepare data for Firestore, ensuring not to save undefined fields that might clear existing ones unintentionally
-    // unless explicitly set to null or a new value.
     const dataToSave: Partial<User> = {};
     if (updatedProfileData.name !== undefined) dataToSave.name = updatedProfileData.name;
     if (updatedProfileData.mobile !== undefined) dataToSave.mobile = updatedProfileData.mobile;
@@ -144,9 +132,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.log("User profile updated in Firestore and locally.");
     } catch (error) {
       console.error("Error updating user profile in Firestore:", error);
-      // Potentially revert local state or notify user
+      if (error instanceof Error) {
+          throw new Error(`Failed to update profile: ${error.message}`);
+      }
+      throw new Error("Failed to update profile due to an unexpected error.");
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // AuthContext's global loading state
     }
   }, [user]);
 

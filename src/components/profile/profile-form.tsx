@@ -11,14 +11,14 @@ import { Loader2 } from 'lucide-react';
 
 interface ProfileFormProps {
   user: User;
-  onUpdate: (updatedUser: Partial<User>) => void;
+  onUpdate: (updatedUser: Partial<User>) => Promise<void>; // Changed to Promise<void>
 }
 
 export function ProfileForm({ user, onUpdate }: ProfileFormProps) {
   const [name, setName] = useState(user.name || '');
   const [mobile, setMobile] = useState(user.mobile || '');
   const [income, setIncome] = useState<string>(user.income?.toString() || '');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // This is for the button's loading state
   const { toast } = useToast();
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export function ProfileForm({ user, onUpdate }: ProfileFormProps) {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    setIsLoading(true);
+    setIsLoading(true); // Start button loading
     
     const updatedUser: Partial<User> = {
       name,
@@ -39,13 +39,12 @@ export function ProfileForm({ user, onUpdate }: ProfileFormProps) {
     };
 
     if (!user.isAdmin) {
-      // Ensure income is a number or undefined if empty
       const incomeValue = parseFloat(income);
       updatedUser.income = isNaN(incomeValue) ? undefined : incomeValue;
     }
 
     try {
-      onUpdate(updatedUser); 
+      await onUpdate(updatedUser); // Await the async operation
       toast({
         title: 'Profile Updated',
         description: 'Your profile information has been successfully updated.',
@@ -53,11 +52,11 @@ export function ProfileForm({ user, onUpdate }: ProfileFormProps) {
     } catch (error) {
       toast({
         title: 'Update Failed',
-        description: 'Could not update profile. Please try again.',
+        description: error instanceof Error ? error.message : 'Could not update profile. Please try again.',
         variant: 'destructive',
       });
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Stop button loading
     }
   };
 
