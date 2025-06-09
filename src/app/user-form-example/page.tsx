@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { User as UserIcon } from 'lucide-react'; // Renamed to avoid conflict if User type is imported
 
@@ -33,17 +32,8 @@ export default function UserFormExamplePage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="example-preference">Preference</Label>
-              <Select>
-                <SelectTrigger id="example-preference" className="bg-input">
-                  <SelectValue placeholder="Select a preference" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="option1">Option 1</SelectItem>
-                  <SelectItem value="option2">Option 2</SelectItem>
-                  <SelectItem value="option3">Option 3</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="example-income">Annual Income ($)</Label>
+              <Input id="example-income" type="number" placeholder="Enter your annual income" className="bg-input" />
             </div>
 
             <div className="flex items-center space-x-2 pt-2">
