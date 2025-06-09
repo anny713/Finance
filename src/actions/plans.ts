@@ -14,49 +14,95 @@ import {
   doc, 
   getDoc as getFirestoreDoc,
   setDoc,
+  updateDoc,
+  deleteDoc,
   where,
-  Timestamp
+  Timestamp,
+  writeBatch
 } from 'firebase/firestore';
 
-export async function createPlanAction(planData: Omit<Plan, 'id'>): Promise<Plan> {
+export async function createPlanAction(planData: Omit<Plan, 'id'>): Promise<Plan | { error: string }> {
   console.log("Server Action: createPlanAction called - saving to Firestore.");
   try {
     const plansCollectionRef = collection(db, 'plans');
-    // Add a server timestamp for when the plan was created, if desired
     const planToSave = { ...planData, createdAt: serverTimestamp() };
     const docRef = await addDoc(plansCollectionRef, planToSave);
     
-    // Construct the plan object to return, including the Firestore-generated ID
-    // and resolving createdAt (if needed, or just return what was saved)
     const newPlan: Plan = { 
       ...planData, 
       id: docRef.id,
-      // Note: 'createdAt' will be a Firestore Timestamp object in the database.
-      // For simplicity, we don't fetch it back here, but it's saved.
+      // createdAt will be a Firestore Timestamp object. We'll fetch it if needed on read.
     };
     console.log("Plan created in Firestore with ID:", docRef.id);
     return newPlan;
   } catch (e) {
     console.error("Error creating plan in Firestore:", e);
     const errorMessage = e instanceof Error ? e.message : "An unexpected error occurred while creating the plan.";
-    // Re-throw or return an error object, depending on desired error handling
-    throw new Error(`Failed to create plan: ${errorMessage}`);
+    return { error: `Failed to create plan: ${errorMessage}` };
   }
 }
+
+export async function updatePlanAction(planId: string, planData: Partial<Omit<Plan, 'id'>>): Promise<Plan | { error: string }> {
+  console.log(`Server Action: updatePlanAction called for ID: ${planId}`);
+  try {
+    const planDocRef = doc(db, 'plans', planId);
+    const planToUpdate = { ...planData, updatedAt: serverTimestamp() }; // Add/update an 'updatedAt' timestamp
+    await updateDoc(planDocRef, planToUpdate);
+
+    // Fetch the updated document to return it, or construct it if certain fields aren't changing
+    const updatedDocSnap = await getFirestoreDoc(planDocRef);
+    if (!updatedDocSnap.exists()) {
+      return { error: "Failed to retrieve updated plan." };
+    }
+    const updatedPlanData = updatedDocSnap.data();
+    const planToReturn: Plan = {
+        id: updatedDocSnap.id,
+        title: updatedPlanData.title,
+        category: updatedPlanData.category,
+        description: updatedPlanData.description,
+        details: updatedPlanData.details,
+        iconName: updatedPlanData.iconName,
+        imageUrl: updatedPlanData.imageUrl,
+        // createdAt: updatedPlanData.createdAt?.toDate ? updatedPlanData.createdAt.toDate().toISOString() : undefined,
+        // updatedAt: updatedPlanData.updatedAt?.toDate ? updatedPlanData.updatedAt.toDate().toISOString() : undefined,
+    };
+    console.log("Plan updated in Firestore:", planId);
+    return planToReturn;
+  } catch (e) {
+    console.error(`Error updating plan ${planId} in Firestore:`, e);
+    const errorMessage = e instanceof Error ? e.message : "An unexpected error occurred while updating the plan.";
+    return { error: `Failed to update plan: ${errorMessage}` };
+  }
+}
+
+export async function deletePlanAction(planId: string): Promise<{ success: boolean; error?: string }> {
+  console.log(`Server Action: deletePlanAction called for ID: ${planId}`);
+  try {
+    const planDocRef = doc(db, 'plans', planId);
+    await deleteDoc(planDocRef);
+    console.log("Plan deleted from Firestore:", planId);
+    return { success: true };
+  } catch (e) {
+    console.error(`Error deleting plan ${planId} from Firestore:`, e);
+    const errorMessage = e instanceof Error ? e.message : "An unexpected error occurred while deleting the plan.";
+    return { success: false, error: `Failed to delete plan: ${errorMessage}` };
+  }
+}
+
 
 async function seedInitialPlans() {
   console.log("Attempting to seed initial plans...");
   const plansCollectionRef = collection(db, 'plans');
-  // Check if plans already exist to avoid re-seeding (optional, can be more robust)
-  const existingPlansSnapshot = await getDocs(query(plansCollectionRef)); // Limiting to 1 for check
+  const existingPlansSnapshot = await getDocs(query(plansCollectionRef));
+  
   if (existingPlansSnapshot.empty) {
     console.log("No existing plans found in Firestore. Seeding initial plans...");
-    const batchPromises: Promise<void>[] = [];
+    const batch = writeBatch(db);
     initialPlans.forEach(plan => {
       const planDocRef = doc(db, 'plans', plan.id); // Use predefined ID for seeding
-      batchPromises.push(setDoc(planDocRef, { ...plan, createdAt: serverTimestamp() }));
+      batch.set(planDocRef, { ...plan, createdAt: serverTimestamp() });
     });
-    await Promise.all(batchPromises);
+    await batch.commit();
     console.log(`${initialPlans.length} initial plans seeded successfully.`);
   } else {
     console.log("Plans collection is not empty. Skipping seeding.");
@@ -67,11 +113,10 @@ async function seedInitialPlans() {
 export async function getPlansAction(category?: PlanCategory): Promise<Plan[]> {
   console.log("Server Action: getPlansAction called - fetching from Firestore.");
   
-  // Attempt to seed initial plans if the collection is empty
   await seedInitialPlans().catch(err => console.error("Error during seeding:", err));
 
   try {
-    let plansQuery = query(collection(db, 'plans'), orderBy('createdAt', 'desc')); // Order by creation time
+    let plansQuery = query(collection(db, 'plans'), orderBy('createdAt', 'desc')); 
     
     if (category) {
       plansQuery = query(collection(db, 'plans'), where('category', '==', category), orderBy('createdAt', 'desc'));
@@ -90,14 +135,14 @@ export async function getPlansAction(category?: PlanCategory): Promise<Plan[]> {
         details: data.details,
         iconName: data.iconName,
         imageUrl: data.imageUrl,
-        // createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : new Date(0).toISOString(), // If needed
+        // createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : new Date(0).toISOString(), 
       } as Plan);
     });
     console.log(`Fetched ${plans.length} plans.`);
     return plans;
   } catch (e) {
     console.error("Error fetching plans from Firestore:", e);
-    return []; // Return empty array on error
+    return []; 
   }
 }
 
@@ -117,7 +162,7 @@ export async function getPlanByIdAction(id: string): Promise<Plan | undefined> {
         details: data.details,
         iconName: data.iconName,
         imageUrl: data.imageUrl,
-        // createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : undefined, // If needed
+        // createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : undefined, 
       };
       console.log("Plan found:", plan);
       return plan;
@@ -127,7 +172,7 @@ export async function getPlanByIdAction(id: string): Promise<Plan | undefined> {
     }
   } catch (e) {
     console.error(`Error fetching plan by ID ${id} from Firestore:`, e);
-    return undefined; // Return undefined on error
+    return undefined; 
   }
 }
 
@@ -135,7 +180,7 @@ export interface PlanApplicationClientInput {
   name: string;
   mobile: string;
   income: number;
-  userId?: string; // Optional user ID if logged in
+  userId?: string; 
 }
 
 export async function applyForPlanAction(planId: string, applicationDetails: PlanApplicationClientInput): Promise<Application | { error: string }> {
@@ -166,14 +211,26 @@ export async function applyForPlanAction(planId: string, applicationDetails: Pla
 
     const docRef = await addDoc(applicationsCollectionRef, newApplicationData);
     
+    // Construct application to return, handling potential timestamp conversion for appliedAt
+    const createdDocSnap = await getFirestoreDoc(docRef); // Fetch to get server timestamp
+    if (!createdDocSnap.exists()) {
+        return { error: "Failed to create application and retrieve details." };
+    }
+    const createdData = createdDocSnap.data();
+    const appliedAt = createdData.appliedAt instanceof Timestamp ? createdData.appliedAt.toDate().toISOString() : new Date().toISOString();
+
+
     const newApplication: Application = {
       id: docRef.id,
-      ...newApplicationData,
-      // Firestore Timestamps are objects; convert to ISO string for client consistency if needed
-      // For this structure, appliedAt is expected as string by Application type.
-      // Firestore handles serverTimestamp(), so we'll approximate for the return object.
-      // The actual value in DB will be correct.
-      appliedAt: new Date().toISOString(), // Placeholder; Firestore timestamp will be accurate.
+      applicantName: createdData.applicantName,
+      applicantMobile: createdData.applicantMobile,
+      applicantIncome: createdData.applicantIncome,
+      planId: createdData.planId,
+      planTitle: createdData.planTitle,
+      planCategory: createdData.planCategory,
+      appliedAt: appliedAt,
+      status: createdData.status,
+      userId: createdData.userId,
     };
     
     console.log("Application submitted to Firestore with ID:", docRef.id);
@@ -196,12 +253,10 @@ export async function getApplicationsAction(): Promise<Application[]> {
     const applications: Application[] = [];
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      // Ensure appliedAt is converted from Firestore Timestamp to ISO string
-      let appliedAtISO = new Date(0).toISOString(); // Default for safety
+      let appliedAtISO = new Date(0).toISOString(); 
       if (data.appliedAt && typeof data.appliedAt.toDate === 'function') {
         appliedAtISO = (data.appliedAt as Timestamp).toDate().toISOString();
       } else if (data.appliedAt) {
-        // If it's already a string or number, try to parse it (less ideal)
         appliedAtISO = new Date(data.appliedAt).toISOString();
       }
 
@@ -222,6 +277,50 @@ export async function getApplicationsAction(): Promise<Application[]> {
     return applications;
   } catch (e) {
     console.error("Error fetching applications from Firestore:", e);
-    return []; // Return empty array on error
+    return []; 
   }
 }
+
+export async function updateApplicationStatusAction(applicationId: string, newStatus: 'APPROVED' | 'REJECTED'): Promise<Application | { error: string }> {
+  console.log(`Server Action: updateApplicationStatusAction called for ID: ${applicationId}, new status: ${newStatus}`);
+  try {
+    const applicationDocRef = doc(db, 'planApplications', applicationId);
+    await updateDoc(applicationDocRef, {
+      status: newStatus,
+      updatedAt: serverTimestamp() // Add an 'updatedAt' timestamp
+    });
+
+    const updatedDocSnap = await getFirestoreDoc(applicationDocRef);
+    if (!updatedDocSnap.exists()) {
+      return { error: "Failed to retrieve updated application." };
+    }
+    const data = updatedDocSnap.data();
+    let appliedAtISO = new Date(0).toISOString(); 
+    if (data.appliedAt && typeof data.appliedAt.toDate === 'function') {
+      appliedAtISO = (data.appliedAt as Timestamp).toDate().toISOString();
+    } else if (data.appliedAt) {
+      appliedAtISO = new Date(data.appliedAt).toISOString();
+    }
+    
+    const updatedApplication: Application = {
+      id: updatedDocSnap.id,
+      applicantName: data.applicantName,
+      applicantMobile: data.applicantMobile,
+      applicantIncome: data.applicantIncome,
+      planId: data.planId,
+      planTitle: data.planTitle,
+      planCategory: data.planCategory,
+      appliedAt: appliedAtISO,
+      status: data.status,
+      userId: data.userId,
+    };
+    console.log(`Application ${applicationId} status updated to ${newStatus}. User would be notified.`);
+    return updatedApplication;
+  } catch (e) {
+    console.error(`Error updating application status for ${applicationId}:`, e);
+    const errorMessage = e instanceof Error ? e.message : "An unexpected error occurred.";
+    return { error: `Failed to update application status: ${errorMessage}` };
+  }
+}
+
+    
