@@ -10,13 +10,13 @@ import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 interface AuthFormProps {
-  mode: 'login' | 'signup';
+  mode: 'login'; // Mode is now restricted to login as signup is removed
   onSubmit: (emailOrUsername: string, password_DoNotStore: string) => Promise<void>;
   errorMessage?: string | null;
 }
 
 export function AuthForm({ mode, onSubmit, errorMessage }: AuthFormProps) {
-  const [identifier, setIdentifier] = useState(''); // Can be email or username for login, email for signup
+  const [identifier, setIdentifier] = useState(''); 
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -27,12 +27,12 @@ export function AuthForm({ mode, onSubmit, errorMessage }: AuthFormProps) {
     setIsLoading(false);
   };
 
-  const isLoginPage = mode === 'login';
-  const pageTitle = isLoginPage ? 'Admin Panel / User Login' : 'Create an Account';
-  const identifierLabel = isLoginPage ? 'Email or Username' : 'Email';
-  const identifierPlaceholder = isLoginPage ? 'Enter your email or username' : 'Enter your email';
-  const identifierType = isLoginPage ? 'text' : 'email'; // username can be text, email for signup
-  const buttonText = isLoginPage ? 'Login' : 'Sign Up';
+  // Since mode is always 'login', we can simplify these
+  const pageTitle = 'Admin Panel / User Login';
+  const identifierLabel = 'Email'; // Admin logs in with email
+  const identifierPlaceholder = 'Enter your email';
+  const identifierType = 'email';
+  const buttonText = 'Login';
 
   return (
     <Card className="w-full max-w-md dark:bg-transparent dark:border-none dark:shadow-none shadow-xl">
@@ -78,21 +78,7 @@ export function AuthForm({ mode, onSubmit, errorMessage }: AuthFormProps) {
         </form>
       </CardContent>
       <CardFooter className="flex flex-col items-center justify-center pt-6 text-sm">
-        {isLoginPage ? (
-          <p className="text-muted-foreground dark:text-slate-400">
-            Don&apos;t have an account?{' '}
-            <Link href="/signup" className="font-medium text-primary hover:underline dark:text-primary">
-              Sign up
-            </Link>
-          </p>
-        ) : (
-          <p className="text-muted-foreground dark:text-slate-400">
-            Already have an account?{' '}
-            <Link href="/login" className="font-medium text-primary hover:underline dark:text-primary">
-              Log in
-            </Link>
-          </p>
-        )}
+        {/* Signup link removed */}
       </CardFooter>
     </Card>
   );

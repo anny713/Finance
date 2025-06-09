@@ -1,64 +1,54 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
-import { AuthForm } from '@/components/auth/auth-form';
-import { useAuth } from '@/hooks/useAuth';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useToast } from "@/hooks/use-toast";
-import { Loader2, Home }
-from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { Home, Info } from 'lucide-react';
 
 export default function SignupPage() {
-  const { signup, user, isLoading: authLoading } = useAuth();
   const router = useRouter();
-  const { toast } = useToast();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user && !authLoading) {
-      router.push('/profile'); // Redirect to profile to complete details after signup
-    }
-  }, [user, authLoading, router]);
-
-  const handleSignup = async (email: string, password_DoNotStore: string) => {
-    setErrorMessage(null);
-    const success = await signup(email, password_DoNotStore);
-    if (success) {
-      toast({
-        title: "Signup Successful",
-        description: "Welcome to Finance Flow! Please complete your profile.",
-      });
-      // Effect hook will handle redirection to /profile
-    } else {
-      setErrorMessage("User with this email already exists or an error occurred.");
-      toast({
-        title: "Signup Failed",
-        description: "User with this email already exists or an error occurred.",
-        variant: "destructive",
-      });
-    }
-  };
-  
-  if (authLoading || user) { // Show loader if auth is processing or user is already logged in (being redirected)
-    return (
-      <div className="flex justify-center items-center min-h-screen bg-slate-900 text-white">
-        <Loader2 className="h-8 w-8 animate-spin" />
-        <p className="ml-2">Loading...</p>
-      </div>
-    );
-  }
+  // Optionally redirect immediately, or just show a message.
+  // For now, showing a message that signup is disabled.
+  // useEffect(() => {
+  //   router.push('/'); // Or '/login'
+  // }, [router]);
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-slate-900 dark py-12 px-4">
-      <AuthForm mode="signup" onSubmit={handleSignup} errorMessage={errorMessage} />
-       <Button asChild variant="outline" className="mt-8 bg-transparent dark:text-slate-300 dark:border-slate-700 hover:dark:bg-slate-800">
-        <Link href="/">
-          <Home className="mr-2 h-4 w-4" /> Go to Home page
-        </Link>
-      </Button>
+      <Card className="w-full max-w-md dark:bg-slate-800/80 dark:border-slate-700 shadow-xl p-4 md:p-8">
+        <CardHeader className="text-center">
+          <div className="flex justify-center mb-4">
+            <Info className="h-12 w-12 text-primary" />
+          </div>
+          <CardTitle className="font-headline text-2xl font-bold text-primary dark:text-primary">
+            Signup Unavailable
+          </CardTitle>
+          <CardDescription className="dark:text-slate-300 mt-2">
+            User registration is currently not available for this application.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="text-center">
+          <p className="text-muted-foreground dark:text-slate-400">
+            If you are an administrator, please proceed to the login page.
+          </p>
+        </CardContent>
+        <div className="mt-6 flex flex-col gap-4">
+            <Button asChild variant="outline" className="bg-transparent dark:text-slate-300 dark:border-slate-700 hover:dark:bg-slate-700">
+                <Link href="/login">
+                Go to Login
+                </Link>
+            </Button>
+            <Button asChild variant="ghost" className="dark:text-slate-400 hover:dark:text-slate-200">
+                <Link href="/">
+                <Home className="mr-2 h-4 w-4" /> Go to Home page
+                </Link>
+            </Button>
+        </div>
+      </Card>
     </div>
   );
 }

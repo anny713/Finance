@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Briefcase, Home, LayoutGrid, UserCircle2, LogOut, LogIn, ShieldCheck, Sparkles, UserPlus } from 'lucide-react'; // Added UserPlus
+import { Briefcase, Home, LayoutGrid, UserCircle2, LogOut, LogIn, ShieldCheck, Sparkles } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { usePathname } from 'next/navigation';
@@ -15,12 +15,12 @@ export function Navbar() {
 
   const navItems: NavItem[] = [
     { href: '/', label: 'Home', icon: Home },
-    { href: '/plans', label: 'Plans', icon: LayoutGrid, loggedInOnly: true },
+    { href: '/plans', label: 'Plans', icon: LayoutGrid, loggedInOnly: false }, // Allow all to see plans
     { href: '/recommendations', label: 'Recommendations', icon: Sparkles, loggedInOnly: true },
     { href: '/profile', label: 'Profile', icon: UserCircle2, loggedInOnly: true },
     { href: '/admin', label: 'Admin', icon: ShieldCheck, adminOnly: true },
     { href: '/login', label: 'Login', icon: LogIn, loggedOutOnly: true },
-    { href: '/signup', label: 'Sign Up', icon: UserPlus, loggedOutOnly: true }, // Re-added Sign Up link
+    // { href: '/signup', label: 'Sign Up', icon: UserPlus, loggedOutOnly: true }, // Sign Up link removed
   ];
 
   const getFilteredNavItems = () => {

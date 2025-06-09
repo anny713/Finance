@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, BarChart2, Shield, LandmarkIcon, Sparkles, UserPlus, LayoutGrid } from "lucide-react"; // Added LayoutGrid
+import { CheckCircle, BarChart2, Shield, LandmarkIcon, Sparkles, UserPlus, LayoutGrid, UserCog } from "lucide-react"; 
 import Image from "next/image";
 import Link from "next/link";
 
@@ -15,14 +15,14 @@ export default function HomePage() {
             Welcome to <span className="text-primary">Finance Flow</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Your trusted partner in financial planning and investment. Manage your profile, explore plans, and get AI-powered recommendations. Admins can manage the platform.
+            Your trusted partner in financial planning and investment. Manage your profile, explore plans, and get AI-powered recommendations. Admins manage the platform.
           </p>
           <div className="space-x-4">
             <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
               <Link href="/plans">Explore Plans</Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/5">
-              <Link href="/signup">Get Started</Link>
+              <Link href="/login">Get Started</Link>
             </Button>
           </div>
         </div>
@@ -33,9 +33,9 @@ export default function HomePage() {
         <h2 className="text-3xl font-bold text-center mb-12 font-headline">Platform Features</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           <FeatureCard
-            icon={<UserPlus className="h-10 w-10 text-primary" />}
-            title="Personalized Profiles"
-            description="Create and manage your financial profile with ease."
+            icon={<UserCog className="h-10 w-10 text-primary" />}
+            title="Admin Management"
+            description="Admins can manage plans and view user applications."
           />
           <FeatureCard
             icon={<LayoutGrid className="h-10 w-10 text-primary" />}
@@ -61,10 +61,10 @@ export default function HomePage() {
         <div className="grid md:grid-cols-3 gap-8 text-center">
           <StepCard
             step="1"
-            title="Create Your Profile"
-            description="Sign up and complete your profile with your name, mobile, and income to start exploring financial plans."
+            title="Secure Admin Access"
+            description="Log in with your administrator credentials to manage the platform."
             imageUrl="https://placehold.co/600x400.png"
-            aiHint="user profile registration"
+            aiHint="secure login"
           />
           <StepCard
             step="2"

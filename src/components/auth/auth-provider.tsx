@@ -11,7 +11,6 @@ export interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password_DoNotStore: string) => Promise<boolean>;
-  signup: (email: string, password_DoNotStore: string) => Promise<boolean>;
   logout: () => void;
   updateCurrentUser: (updatedUser: Partial<User>) => void;
 }
@@ -19,7 +18,7 @@ export interface AuthContextType {
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const ADMIN_LOGIN_EMAIL = 'admin@finance.flow';
-const ADMIN_PASSWORD = '123'; // As per earlier request
+const ADMIN_PASSWORD = '123'; 
 const ADMIN_NAME = 'Anjali';
 const ADMIN_ID = 'admin_user_anjali_001';
 
@@ -49,7 +48,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       let users = getStoredUsers();
       const adminIndex = users.findIndex(u => u.id === adminUser.id);
       if (adminIndex > -1) {
-        users[adminIndex] = { ...adminUser, password_INTERNAL_USE_ONLY: ADMIN_PASSWORD };
+        users[adminIndex] = { ...users[adminIndex], ...adminUser, password_INTERNAL_USE_ONLY: ADMIN_PASSWORD };
       } else {
         users.push({ ...adminUser, password_INTERNAL_USE_ONLY: ADMIN_PASSWORD });
       }
@@ -82,36 +81,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return false;
   }, [router]);
 
-  const signup = useCallback(async (email: string, password_DoNotStore: string): Promise<boolean> => {
-    setIsLoading(true);
-    let users = getStoredUsers();
-    const existingUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-
-    if (existingUser) {
-      setIsLoading(false);
-      return false; 
-    }
-
-    const newUser: User & { password_INTERNAL_USE_ONLY: string } = {
-      id: `user_${Date.now().toString()}_${Math.random().toString(36).substring(2, 7)}`,
-      email: email.toLowerCase(),
-      isAdmin: false,
-      // Name, mobile, income will be set in profile
-      password_INTERNAL_USE_ONLY: password_DoNotStore,
-    };
-    
-    users.push(newUser);
-    storeUsers(users);
-
-    const { password_INTERNAL_USE_ONLY, ...userToStore } = newUser;
-    setUser(userToStore);
-    storeCurrentUser(userToStore);
-    
-    setIsLoading(false);
-    router.push('/profile'); // Redirect to profile page after signup
-    return true;
-  }, [router]);
-
   const logout = useCallback(() => {
     setUser(null);
     storeCurrentUser(null);
@@ -126,10 +95,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (prevUser.id === ADMIN_ID) {
         newUserData.isAdmin = true; 
-        delete newUserData.income; // Ensure admin cannot have income
+        delete newUserData.income; 
       } else {
-        newUserData.isAdmin = false; // Ensure regular users are not admins
-        // Income is handled by updatedUserData
+        newUserData.isAdmin = false; 
       }
       
       storeCurrentUser(newUserData);
@@ -150,7 +118,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, updateCurrentUser }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, updateCurrentUser }}>
       {children}
     </AuthContext.Provider>
   );
