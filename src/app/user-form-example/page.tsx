@@ -24,7 +24,7 @@ export default function UserFormExamplePage() {
     defaultValues: {
       name: '',
       email: '',
-      income: undefined, // Or a default string like '' if your input expects it initially
+      income: '' as unknown as number, // Initialize with empty string for controlled input
       terms: false,
     },
   });
@@ -57,7 +57,7 @@ export default function UserFormExamplePage() {
             <UserIcon className="h-6 w-6 text-primary" />
             User Profile
           </CardTitle>
-          <CardDescription>Create a new user profile by filling out the information below.</CardDescription>
+          <CardDescription>Manage your user profile information.</CardDescription>
         </CardHeader>
         <CardContent className="p-6">
           <Form {...form}>
@@ -97,7 +97,21 @@ export default function UserFormExamplePage() {
                   <FormItem>
                     <FormLabel>Annual Income ($)</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="Enter your annual income" {...field} onChange={event => field.onChange(+event.target.value)} className="bg-input" />
+                      <Input 
+                        type="number" 
+                        placeholder="Enter your annual income" 
+                        {...field} 
+                        value={field.value === undefined || field.value === null ? '' : field.value} // Ensure value is not undefined
+                        onChange={event => {
+                          const value = event.target.value;
+                          if (value === '') {
+                            field.onChange(undefined); // Or handle as needed for Zod schema (e.g. '' or specific number)
+                          } else {
+                            field.onChange(+value);
+                          }
+                        }} 
+                        className="bg-input" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
