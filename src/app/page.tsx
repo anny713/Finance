@@ -62,7 +62,7 @@ export default function HomePage() {
             title="Secure Admin Access"
             description="Log in with your administrator credentials to manage the platform and financial plans."
             imageUrl="https://placehold.co/600x400.png"
-            aiHint="secure login"
+            aiHint="admin login"
           />
           <StepCard
             step="2"
@@ -123,3 +123,4 @@ function StepCard({ step, title, description, imageUrl, aiHint }: StepCardProps)
     </div>
   );
 }
+
