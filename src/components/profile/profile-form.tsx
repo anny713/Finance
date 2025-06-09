@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, type FormEvent, useEffect } from 'react';
@@ -23,7 +24,9 @@ export function ProfileForm({ user, onUpdate }: ProfileFormProps) {
   useEffect(() => {
     setName(user.name || '');
     setMobile(user.mobile || '');
-    setIncome(user.income?.toString() || '');
+    if (!user.isAdmin) {
+      setIncome(user.income?.toString() || '');
+    }
   }, [user]);
 
   const handleSubmit = async (event: FormEvent) => {
@@ -33,11 +36,13 @@ export function ProfileForm({ user, onUpdate }: ProfileFormProps) {
     const updatedUser: Partial<User> = {
       name,
       mobile,
-      income: income ? parseFloat(income) : undefined,
     };
 
+    if (!user.isAdmin) {
+      updatedUser.income = income ? parseFloat(income) : undefined;
+    }
+
     try {
-      // In a real app, this would be a server action
       onUpdate(updatedUser); 
       toast({
         title: 'Profile Updated',
@@ -82,17 +87,19 @@ export function ProfileForm({ user, onUpdate }: ProfileFormProps) {
           className="bg-input"
         />
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="income">Annual Income ($)</Label>
-        <Input
-          id="income"
-          type="number"
-          placeholder="Your annual income"
-          value={income}
-          onChange={(e) => setIncome(e.target.value)}
-          className="bg-input"
-        />
-      </div>
+      {!user.isAdmin && (
+        <div className="space-y-2">
+          <Label htmlFor="income">Annual Income ($)</Label>
+          <Input
+            id="income"
+            type="number"
+            placeholder="Your annual income"
+            value={income}
+            onChange={(e) => setIncome(e.target.value)}
+            className="bg-input"
+          />
+        </div>
+      )}
       <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={isLoading}>
         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         Update Profile
@@ -100,3 +107,4 @@ export function ProfileForm({ user, onUpdate }: ProfileFormProps) {
     </form>
   );
 }
+

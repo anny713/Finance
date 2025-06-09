@@ -17,7 +17,7 @@ export interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const ADMIN_USERNAME = 'anjali'; // Changed from ADMIN_EMAIL
+const ADMIN_USERNAME = 'anjali'; 
 const ADMIN_PASSWORD = '123';
 const ADMIN_NAME = 'Anjali';
 const ADMIN_ID = 'admin_user_anjali_001';
@@ -40,9 +40,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (username.toLowerCase() === ADMIN_USERNAME && password_DoNotStore === ADMIN_PASSWORD) {
       const adminUser: User = {
         id: ADMIN_ID,
-        email: ADMIN_EMAIL_INTERNAL, // Use internal email for consistency in User object
+        email: ADMIN_EMAIL_INTERNAL, 
         name: ADMIN_NAME,
         isAdmin: true,
+        // Admin does not have an income field
       };
       setUser(adminUser);
       storeCurrentUser(adminUser);
@@ -80,15 +81,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const updateCurrentUser = useCallback((updatedUserData: Partial<User>) => {
     setUser(prevUser => {
       if (!prevUser) return null;
-      const { isAdmin, ...restOfUpdateData } = updatedUserData;
-      const newUserData = { ...prevUser, ...restOfUpdateData };
       
-      if (prevUser.id === ADMIN_ID) {
-        newUserData.isAdmin = true;
-      } else if (isAdmin !== undefined && prevUser.id !== ADMIN_ID) {
-        console.warn("Attempt to modify isAdmin flag for non-admin user blocked.");
-      }
+      // Destructure to handle isAdmin and income separately
+      const { isAdmin: newIsAdminFlag, income: newIncome, ...restOfUpdateData } = updatedUserData;
+      
+      let newUserData: User = { ...prevUser, ...restOfUpdateData };
 
+      if (prevUser.id === ADMIN_ID) {
+        newUserData.isAdmin = true; // Admin status is fixed
+        // Ensure admin does not have an income field set or updated
+        // If 'income' was in updatedUserData, it's captured in newIncome.
+        // We explicitly delete it from the admin user object.
+        if (newUserData.hasOwnProperty('income')) {
+           delete newUserData.income;
+        }
+      } else {
+        // For non-admin users
+        if (newIncome !== undefined) {
+          newUserData.income = newIncome;
+        }
+        // Non-admin users cannot set isAdmin flag via profile update
+        if (newIsAdminFlag !== undefined && newIsAdminFlag !== prevUser.isAdmin) {
+          console.warn("Attempt to modify isAdmin flag for non-admin user blocked.");
+          newUserData.isAdmin = prevUser.isAdmin; // Revert to original isAdmin status
+        }
+      }
+      
       storeCurrentUser(newUserData);
       
       let users = getStoredUsers();
