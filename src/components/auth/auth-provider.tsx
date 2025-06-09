@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 export interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password_DoNotStore: string) => Promise<boolean>;
+  login: (username: string, password_DoNotStore: string) => Promise<boolean>;
   signup: (email: string, password_DoNotStore: string) => Promise<boolean>; // Kept for type consistency, but not used
   logout: () => void;
   updateCurrentUser: (updatedUser: Partial<User>) => void;
@@ -17,10 +17,11 @@ export interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const ADMIN_EMAIL = 'admin@finance.flow';
-const ADMIN_PASSWORD = '123'; // Updated password
+const ADMIN_USERNAME = 'anjali'; // Changed from ADMIN_EMAIL
+const ADMIN_PASSWORD = '123';
 const ADMIN_NAME = 'Anjali';
 const ADMIN_ID = 'admin_user_anjali_001';
+const ADMIN_EMAIL_INTERNAL = 'admin@finance.flow'; // Internal email for the user object
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -33,13 +34,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoading(false);
   }, []);
 
-  const login = useCallback(async (email: string, password_DoNotStore: string): Promise<boolean> => {
+  const login = useCallback(async (username: string, password_DoNotStore: string): Promise<boolean> => {
     setIsLoading(true);
 
-    if (email.toLowerCase() === ADMIN_EMAIL && password_DoNotStore === ADMIN_PASSWORD) {
+    if (username.toLowerCase() === ADMIN_USERNAME && password_DoNotStore === ADMIN_PASSWORD) {
       const adminUser: User = {
         id: ADMIN_ID,
-        email: ADMIN_EMAIL,
+        email: ADMIN_EMAIL_INTERNAL, // Use internal email for consistency in User object
         name: ADMIN_NAME,
         isAdmin: true,
       };
@@ -59,17 +60,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return true;
     }
 
-    // Since signup is removed and only admin login is intended,
-    // we can effectively disable non-admin login by always returning false here.
     setIsLoading(false);
     return false;
   }, []);
 
-  // Signup is effectively disabled as per previous requests.
-  // This function will not be called from UI but kept for type consistency.
   const signup = useCallback(async (email: string, password_DoNotStore: string): Promise<boolean> => {
     setIsLoading(true);
-    // In an admin-only app, new signups are not allowed.
     console.warn("Signup attempt blocked in admin-only mode.");
     setIsLoading(false);
     return false; 
@@ -84,7 +80,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const updateCurrentUser = useCallback((updatedUserData: Partial<User>) => {
     setUser(prevUser => {
       if (!prevUser) return null;
-      // Prevent isAdmin from being changed via profile update for security
       const { isAdmin, ...restOfUpdateData } = updatedUserData;
       const newUserData = { ...prevUser, ...restOfUpdateData };
       
