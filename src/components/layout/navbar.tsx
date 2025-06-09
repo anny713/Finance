@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Briefcase, Home, LayoutGrid, UserCircle2, LogOut, LogIn, ShieldCheck, Sparkles, UserPlus } from 'lucide-react'; // UserPlus might still be in imports but won't be used
+import { Briefcase, Home, LayoutGrid, UserCircle2, LogOut, LogIn, ShieldCheck, Sparkles } from 'lucide-react'; 
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { usePathname } from 'next/navigation';
@@ -16,11 +16,11 @@ export function Navbar() {
   const navItems: NavItem[] = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/plans', label: 'Plans', icon: LayoutGrid, loggedInOnly: false }, 
+    { href: '/user-form-example', label: 'User Profile', icon: UserCircle2, loggedInOnly: false }, // New link to the demo page
     { href: '/recommendations', label: 'Recommendations', icon: Sparkles, loggedInOnly: true }, // Should only show if admin is logged in
     { href: '/profile', label: 'Profile', icon: UserCircle2, loggedInOnly: true }, // For admin profile
     { href: '/admin', label: 'Admin', icon: ShieldCheck, adminOnly: true },
     { href: '/login', label: 'Admin Login', icon: LogIn, loggedOutOnly: true },
-    // Sign Up link is removed
   ];
 
   const getFilteredNavItems = () => {

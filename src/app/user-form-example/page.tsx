@@ -15,9 +15,9 @@ export default function UserFormExamplePage() {
         <CardHeader className="bg-card">
           <CardTitle className="text-2xl font-headline flex items-center gap-2">
             <UserIcon className="h-6 w-6 text-primary" />
-            User Form Example
+            User Profile
           </CardTitle>
-          <CardDescription>This page demonstrates various form elements.</CardDescription>
+          <CardDescription>Manage your user profile information.</CardDescription>
         </CardHeader>
         <CardContent className="p-6">
           <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
@@ -44,7 +44,7 @@ export default function UserFormExamplePage() {
             </div>
 
             <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground mt-4">
-              Submit Example Form
+              Submit
             </Button>
           </form>
         </CardContent>
