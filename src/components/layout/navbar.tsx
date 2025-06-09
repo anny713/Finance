@@ -41,15 +41,17 @@ export function Navbar() {
         </Link>
         <div className="flex items-center gap-2 sm:gap-4">
           {getFilteredNavItems().map(item => (
-            <Link key={item.href} href={item.href} legacyBehavior passHref>
-              <a className={cn(
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
                 "text-sm font-medium transition-colors hover:text-primary",
                 pathname === item.href ? "text-primary" : "text-foreground/80",
                 "flex items-center gap-1"
-              )}>
-                {item.icon && <item.icon className="h-4 w-4 hidden sm:inline-block" />}
-                {item.label}
-              </a>
+              )}
+            >
+              {item.icon && <item.icon className="h-4 w-4 hidden sm:inline-block" />}
+              {item.label}
             </Link>
           ))}
           {user && (
