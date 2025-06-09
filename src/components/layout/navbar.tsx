@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -19,7 +20,7 @@ export function Navbar() {
     { href: '/profile', label: 'Profile', icon: UserCircle2, loggedInOnly: true },
     { href: '/admin', label: 'Admin', icon: ShieldCheck, adminOnly: true },
     { href: '/login', label: 'Login', icon: LogIn, loggedOutOnly: true },
-    { href: '/signup', label: 'Sign Up', loggedOutOnly: true },
+    // Removed Sign Up link
   ];
 
   const getFilteredNavItems = () => {
