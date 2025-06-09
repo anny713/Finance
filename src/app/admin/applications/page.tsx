@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import type { Application } from '@/types';
-import { getApplicationsAction } from '@/actions/plans'; // Assuming this action is created
+import { getApplicationsAction } from '@/actions/plans';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
@@ -15,9 +16,7 @@ export default function AdminApplicationsPage() {
   useEffect(() => {
     async function fetchApplications() {
       setIsLoading(true);
-      // Mocked action, will use localStorage
       const fetchedApplications = await getApplicationsAction();
-      // Sort by date, newest first
       fetchedApplications.sort((a, b) => new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime());
       setApplications(fetchedApplications);
       setIsLoading(false);
@@ -43,21 +42,22 @@ export default function AdminApplicationsPage() {
           <TableCaption>A list of user applications for financial plans.</TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead>User Name</TableHead>
+              <TableHead>Applicant Name</TableHead>
               <TableHead>Mobile</TableHead>
               <TableHead>Income</TableHead>
               <TableHead>Plan Title</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Applied At</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>User ID (if logged in)</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {applications.map(app => (
               <TableRow key={app.id}>
-                <TableCell className="font-medium">{app.userName}</TableCell>
-                <TableCell>{app.userMobile}</TableCell>
-                <TableCell>${app.userIncome.toLocaleString()}</TableCell>
+                <TableCell className="font-medium">{app.applicantName}</TableCell>
+                <TableCell>{app.applicantMobile}</TableCell>
+                <TableCell>${app.applicantIncome.toLocaleString()}</TableCell>
                 <TableCell>{app.planTitle}</TableCell>
                 <TableCell>{app.planCategory}</TableCell>
                 <TableCell>{format(new Date(app.appliedAt), 'PPpp')}</TableCell>
@@ -66,6 +66,7 @@ export default function AdminApplicationsPage() {
                     {app.status}
                   </Badge>
                 </TableCell>
+                <TableCell>{app.userId || 'N/A'}</TableCell>
               </TableRow>
             ))}
           </TableBody>

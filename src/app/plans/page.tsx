@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -6,13 +7,13 @@ import type { Plan, PlanCategory } from '@/types';
 import { getPlansAction } from '@/actions/plans';
 import { PlanCard } from '@/components/plans/plan-card';
 import { PlanCategoriesTabs } from '@/components/plans/plan-categories-tabs';
-import { useAuth } from '@/hooks/useAuth';
+// import { useAuth } from '@/hooks/useAuth'; // No longer needed for page access control
 import { Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 
 export default function PlansPage() {
-  const { user, isLoading: authLoading } = useAuth();
+  // const { user, isLoading: authLoading } = useAuth(); // No longer needed for page access control
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -24,11 +25,11 @@ export default function PlansPage() {
   );
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
 
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/login?redirect=/plans');
-    }
-  }, [user, authLoading, router]);
+  // useEffect(() => { // Removed: Users no longer need to be logged in to see this page
+  //   if (!authLoading && !user) {
+  //     router.push('/login?redirect=/plans');
+  //   }
+  // }, [user, authLoading, router]);
 
   const fetchPlans = useCallback(async () => {
     setIsLoading(true);
@@ -54,7 +55,6 @@ export default function PlansPage() {
     }
     setFilteredPlans(plansToFilter);
     
-    // Update URL query params
     const params = new URLSearchParams();
     if (currentCategory !== 'ALL') params.set('category', currentCategory);
     if (searchTerm) params.set('search', searchTerm);
@@ -71,7 +71,8 @@ export default function PlansPage() {
     setSearchTerm(event.target.value);
   };
 
-  if (authLoading || (!user && !isLoading)) { // Show loader if auth is loading or if redirecting
+  // if (authLoading || (!user && !isLoading)) { // Simplified loading state
+  if (isLoading && allPlans.length === 0) { // Show loader if initial plans are loading
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -101,7 +102,7 @@ export default function PlansPage() {
 
       <PlanCategoriesTabs currentCategory={currentCategory} onCategoryChange={handleCategoryChange} />
 
-      {isLoading ? (
+      {isLoading && filteredPlans.length === 0 ? ( // Show loader when filtering or initial load
          <div className="flex justify-center items-center min-h-[300px]">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
          </div>

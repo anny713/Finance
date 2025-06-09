@@ -1,15 +1,12 @@
+
 'use client';
 
 import Image from 'next/image';
-import type { Plan, User } from '@/types';
+import type { Plan } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { getIconComponent } from '@/lib/icons';
-import { useToast } from '@/hooks/use-toast';
-import { applyForPlanAction } from '@/actions/plans';
-import { useAuth } from '@/hooks/useAuth';
-import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { ApplyPlanDialog } from './apply-plan-dialog'; // Import the new dialog
 
 interface PlanCardProps {
   plan: Plan;
@@ -17,30 +14,6 @@ interface PlanCardProps {
 
 export function PlanCard({ plan }: PlanCardProps) {
   const IconComponent = plan.iconName ? getIconComponent(plan.iconName) : getIconComponent('HelpCircle');
-  const { toast } = useToast();
-  const { user } = useAuth();
-  const [isApplying, setIsApplying] = useState(false);
-
-  const handleApply = async () => {
-    if (!user) {
-      toast({ title: "Login Required", description: "Please log in to apply for plans.", variant: "destructive" });
-      return;
-    }
-    if (!user.name || !user.mobile || typeof user.income !== 'number') {
-       toast({ title: "Profile Incomplete", description: "Please complete your name, mobile, and income in your profile before applying.", variant: "destructive" });
-       return;
-    }
-
-    setIsApplying(true);
-    const result = await applyForPlanAction(plan.id, user);
-    setIsApplying(false);
-
-    if ('error' in result) {
-      toast({ title: "Application Failed", description: result.error, variant: "destructive" });
-    } else {
-      toast({ title: "Application Submitted!", description: `Your application for "${plan.title}" has been submitted.`, className: "bg-accent text-accent-foreground" });
-    }
-  };
 
   return (
     <Card className="shadow-lg hover:shadow-xl transition-shadow flex flex-col overflow-hidden rounded-lg">
@@ -74,10 +47,11 @@ export function PlanCard({ plan }: PlanCardProps) {
         )}
       </CardContent>
       <CardFooter className="border-t pt-4">
-        <Button onClick={handleApply} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isApplying}>
-          {isApplying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Apply Now
-        </Button>
+        <ApplyPlanDialog plan={plan}>
+          <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+            Apply Now
+          </Button>
+        </ApplyPlanDialog>
       </CardFooter>
     </Card>
   );
