@@ -61,7 +61,7 @@ export default function HomePage() {
             step="1"
             title="Secure Admin Access"
             description="Log in with your administrator credentials to manage the platform and financial plans."
-            imageUrl="https://placehold.co/600x400.png"
+            imageUrl="https://lh3.googleusercontent.com/gg/AAHar4e65gXL7cA1YXy2UKMbylB6_BsXq0mN88ptKAzzQzZV1VOc1mpVBNDd02_Qy8T4noVeAP75WFfvuyMofSGuD7ASl-awUJiLVH-pyhDgPzdEa4YaIjhJiDM6CfxoeOou5dVTIE4F-C7Az25yX95mGRtB565EEdbE-5jQcxxAgSIt_hYV2nY_Tnx0msLiwwrv_gw-Pb2hO5AlT2pBangpwEJIiD6cI7NhLm1hwgY3HA6pKipZ1NWc0Gkeib7NDEUAnpYoBk6Tfgsr-AX3jJzym-B_ijg00a3_8zZcNxSxpDEwretXZ7AYLjHJCLP53SuqIsbMO2hUMyadmi-qQ_mYE1YC=s1024"
             aiHint="admin login"
           />
           <StepCard
@@ -123,4 +123,3 @@ function StepCard({ step, title, description, imageUrl, aiHint }: StepCardProps)
     </div>
   );
 }
-
