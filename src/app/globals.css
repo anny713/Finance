@@ -79,6 +79,26 @@
   }
 }
 
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px; /* Adjust base font size for smaller screens */
+  }
+
+  /* Example: Adjust padding on smaller screens */
+  .container {
+    padding: 0 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 12px; /* Further reduce font size for very small screens */
+  }
+}
+
+/* Add styles here to hide/show the hamburger menu and overlay */
+
 @layer base {
   * {
     @apply border-border;

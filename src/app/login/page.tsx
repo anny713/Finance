@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { AuthForm } from '@/components/auth/auth-form';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -11,6 +11,19 @@ import { Loader2, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center items-center min-h-screen bg-slate-900 text-white">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <p className="ml-2">Loading login page...</p>
+      </div>
+    }>
+      <LoginPageContent />
+    </Suspense>
+  );
+}
+
+function LoginPageContent() {
   const { login, user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
