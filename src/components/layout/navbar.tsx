@@ -17,7 +17,6 @@ export function Navbar() {
 
   const navItems: NavItem[] = [
     { href: '/', label: 'Home Page', icon: Home },
-    { href: '/user-form-example', label: 'User Profile', icon: UserCircle2 },
     { href: '/plans', label: 'Plans', icon: LayoutGrid },
     { href: '/login', label: 'Admin Login', icon: LogIn, loggedOutOnly: true },
  ];
@@ -26,7 +25,7 @@ export function Navbar() {
     if (isLoading) return [];
     return navItems.filter(item => {
       if (item.adminOnly && (!user || !user.isAdmin)) return false;
-      if (item.href === '/profile' && (!user || !user.isAdmin)) return false;
+      if (item.href === '/profile' && !user) return false;
 
       if (item.loggedInOnly && !user) return false; // Generic loggedInOnly check
       if (item.loggedOutOnly && user) return false;
@@ -63,15 +62,39 @@ export function Navbar() {
             </Link>
           ))}
           {user && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={logout}
-              className="text-foreground hover:text-primary"
-            >
-              <LogOut className="mr-1 h-4 w-4" />
-              Logout
-            </Button>
+            <>
+              {user.isAdmin && (
+                 <Link
+                    href="/admin"
+                    className={cn(
+                        'flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary',
+                        pathname.startsWith('/admin') ? 'text-primary' : 'text-foreground/80'
+                    )}
+                    >
+                    <ShieldCheck className="h-4 w-4 hidden sm:inline-block" />
+                    Admin
+                </Link>
+              )}
+              <Link
+                href="/profile"
+                className={cn(
+                    'flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary',
+                    pathname === '/profile' ? 'text-primary' : 'text-foreground/80'
+                )}
+                >
+                <UserCircle2 className="h-4 w-4 hidden sm:inline-block" />
+                Profile
+              </Link>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={logout}
+                className="text-foreground hover:text-primary"
+              >
+                <LogOut className="mr-1 h-4 w-4" />
+                Logout
+              </Button>
+            </>
           )}
         </div>
 
@@ -92,7 +115,7 @@ export function Navbar() {
         {/* Mobile Navigation Menu */}{' '}
         {/* Toggle visibility based on isMobileMenuOpen */}{' '}
         {isMobileMenuOpen && (
-          <div className="absolute top-16 left-0 right-0 bg-card border-b border-border shadow-sm flex flex-col items-start p-4 space-y-4 md:hidden">
+          <div className="absolute top-16 left-0 right-0 bg-card border-b border-border shadow-sm flex flex-col items-start p-4 space-y-4 md:hidden z-50">
             {getFilteredNavItems().map((item) => (
               <Link
                 key={item.href}
@@ -106,6 +129,46 @@ export function Navbar() {
                 {item.icon && <item.icon className="h-5 w-5" />} {item.label}
               </Link>
             ))}
+             {user && (
+                <>
+                {user.isAdmin && (
+                    <Link
+                        href="/admin"
+                        className={cn(
+                            'flex items-center gap-2 text-lg font-medium transition-colors hover:text-primary',
+                            pathname.startsWith('/admin') ? 'text-primary' : 'text-foreground'
+                        )}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                        <ShieldCheck className="h-5 w-5" />
+                        Admin
+                    </Link>
+                )}
+                <Link
+                    href="/profile"
+                    className={cn(
+                        'flex items-center gap-2 text-lg font-medium transition-colors hover:text-primary',
+                        pathname === '/profile' ? 'text-primary' : 'text-foreground'
+                    )}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                    <UserCircle2 className="h-5 w-5" />
+                    Profile
+                </Link>
+                <Button
+                    variant="ghost"
+                    size="lg"
+                    onClick={() => {
+                        logout();
+                        setIsMobileMenuOpen(false);
+                    }}
+                    className="flex items-center gap-2 text-lg font-medium text-foreground hover:text-primary w-full justify-start p-0"
+                >
+                    <LogOut className="h-5 w-5" />
+                    Logout
+                </Button>
+                </>
+             )}
           </div>
         )}
       </nav>

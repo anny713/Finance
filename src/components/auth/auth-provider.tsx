@@ -3,9 +3,8 @@
 
 import React, { createContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import type { User } from '@/types';
-import { getStoredCurrentUser, storeCurrentUser } from '@/lib/authStore';
 import { useRouter } from 'next/navigation';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db, auth as firebaseAuth } from '@/lib/firebase';
 import { 
   signInWithEmailAndPassword, 
@@ -45,10 +44,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             isAdmin: firestoreData.isAdmin === true,
           };
           setUser(appUser);
-          storeCurrentUser(appUser);
         } else {
-          // This logic creates an admin profile on the very first login for the designated admin email.
-          // In a real-world scenario, you might have a separate admin creation script.
           if (firebaseUser.email?.toLowerCase() === 'palanjali945@gmail.com') {
               const adminProfile: User = {
                   id: firebaseUser.uid,
@@ -58,28 +54,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               };
               await setDoc(userDocRef, { ...adminProfile, createdAt: serverTimestamp() });
               setUser(adminProfile);
-              storeCurrentUser(adminProfile);
               console.log(`Admin profile created in Firestore for UID: ${firebaseUser.uid}`);
           } else {
-              // This is a regular user without a Firestore document yet.
-              // For this app, non-admins don't need immediate Firestore docs upon login.
               const regularUser: User = {
                 id: firebaseUser.uid,
                 email: firebaseUser.email!,
                 isAdmin: false,
               };
               setUser(regularUser);
-              storeCurrentUser(regularUser);
           }
         }
       } catch (error) {
         console.error("Error fetching user data from Firestore:", error);
         setUser(null);
-        storeCurrentUser(null);
       }
     } else {
       setUser(null);
-      storeCurrentUser(null);
     }
     setIsLoading(false);
   }, []);
@@ -93,8 +83,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(firebaseAuth, email, password_DoNotStore);
-      // onAuthStateChanged will handle setting user state and redirection via its own effect.
-      // We just need to wait for it to complete. The state update will trigger redirection where needed.
       return true;
     } catch (error) {
       console.error("Firebase Auth Login Error:", error);
@@ -107,12 +95,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoading(true);
     try {
       await signOut(firebaseAuth);
-      // onAuthStateChanged will handle setting user to null.
       router.push('/login');
     } catch (error) {
       console.error("Firebase Auth Logout Error:", error);
-    } finally {
-      // The onAuthStateChanged listener will set loading to false.
     }
   }, [router]);
 
@@ -124,9 +109,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const userDocRef = doc(db, 'users', user.id);
     
     const dataToSave: Partial<User> & { updatedAt?: any } = { ...updatedProfileData };
-    delete dataToSave.id; // Don't try to write id field
-    delete dataToSave.email; // Don't try to write email field
-    delete dataToSave.isAdmin; // Don't allow changing admin status from client
+    delete dataToSave.id; 
+    delete dataToSave.email; 
+    delete dataToSave.isAdmin; 
     
     dataToSave.updatedAt = serverTimestamp();
     
@@ -134,7 +119,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await updateDoc(userDocRef, dataToSave);
       const updatedUser: User = { ...user, ...dataToSave };
       setUser(updatedUser);
-      storeCurrentUser(updatedUser);
       console.log("User profile updated.");
     } catch (error) {
       console.error("Error updating user profile in Firestore:", error);
