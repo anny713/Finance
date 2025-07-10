@@ -33,11 +33,14 @@ function LoginPageContent() {
   useEffect(() => {
     if (!authLoading && user) {
       const redirectUrl = searchParams.get('redirect');
-      if (redirectUrl) {
-        router.push(redirectUrl);
+      
+      // Explicitly check for admin status for redirection
+      if (user.isAdmin) {
+        // If a specific admin page was requested, go there; otherwise, go to the admin dashboard.
+        router.push(redirectUrl && redirectUrl.startsWith('/admin') ? redirectUrl : '/admin');
       } else {
-        // Redirect based on role
-        router.push(user.isAdmin ? '/admin' : '/profile'); 
+        // For non-admins, redirect to their profile or the requested non-admin page.
+        router.push(redirectUrl || '/profile'); 
       }
     }
   }, [user, authLoading, router, searchParams]);
