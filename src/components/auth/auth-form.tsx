@@ -9,26 +9,21 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Loader2 } from 'lucide-react';
 
 interface AuthFormProps {
-  // mode prop is removed as it's always for admin login
   onSubmit: (email: string, password_DoNotStore: string) => Promise<void>;
   errorMessage?: string | null;
+  isLoading: boolean;
 }
 
-export function AuthForm({ onSubmit, errorMessage }: AuthFormProps) {
+export function AuthForm({ onSubmit, errorMessage, isLoading }: AuthFormProps) {
   const [email, setEmail] = useState(''); 
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    setIsLoading(true);
     await onSubmit(email, password);
-    setIsLoading(false);
   };
 
   const pageTitle = 'Admin Login';
-  const identifierLabel = 'Email';
-  const identifierPlaceholder = 'Enter your admin email';
   const buttonText = 'Login';
 
   return (
@@ -44,11 +39,11 @@ export function AuthForm({ onSubmit, errorMessage }: AuthFormProps) {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="email" className="dark:text-slate-300">{identifierLabel}</Label>
+            <Label htmlFor="email" className="dark:text-slate-300">Email</Label>
             <Input
               id="email"
-              type="email" // Admin logs in with email
-              placeholder={identifierPlaceholder}
+              type="email"
+              placeholder="Enter your admin email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -75,7 +70,7 @@ export function AuthForm({ onSubmit, errorMessage }: AuthFormProps) {
         </form>
       </CardContent>
       <CardFooter className="flex flex-col items-center justify-center pt-6 text-sm">
-        {/* Signup link or alternative actions removed */}
+        {/* No alternative actions needed for admin-only login */}
       </CardFooter>
     </Card>
   );
