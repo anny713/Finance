@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, type ReactNode } from 'react';
@@ -12,12 +13,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading) {
-      if (!user) {
-        router.push('/login?redirect=/admin');
-      } else if (!user.isAdmin) {
-        router.push('/'); // Or an "access denied" page
-      }
+    if (!isLoading && (!user || !user.isAdmin)) {
+      router.push('/login?redirect=/admin');
     }
   }, [user, isLoading, router]);
 
