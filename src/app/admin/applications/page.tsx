@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import type { Application } from '@/types';
 import { getApplicationsAction, updateApplicationStatusAction } from '@/actions/plans';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '@/components/ui/table';
@@ -13,17 +13,20 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function AdminApplicationsPage() {
   const [applications, setApplications] = useState<Application[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
   useEffect(() => {
-    async function fetchApplications() {
-      setIsLoading(true);
-      const fetchedApplications = await getApplicationsAction();
-      setApplications(fetchedApplications);
-      setIsLoading(false);
-    }
+    const fetchApplications = () => {
+      startTransition(async () => {
+        setIsPageLoading(true);
+        const fetchedApplications = await getApplicationsAction();
+        setApplications(fetchedApplications);
+        setIsPageLoading(false);
+      });
+    };
     fetchApplications();
   }, []);
 
@@ -51,6 +54,8 @@ export default function AdminApplicationsPage() {
       );
     }
   };
+
+  const isLoading = isPageLoading || isPending;
 
   if (isLoading) {
     return (
@@ -134,5 +139,3 @@ export default function AdminApplicationsPage() {
     </div>
   );
 }
-
-    
