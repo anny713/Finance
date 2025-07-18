@@ -4,9 +4,8 @@ import type { Application, Plan } from '@/types';
 // const PLANS_KEY = 'financeFlow_plans'; // Removed, plans are now in Firestore
 
 // Initial plans data, will be used to seed Firestore if the 'plans' collection is empty.
-export const initialPlans: Plan[] = [
+export const initialPlans: Omit<Plan, 'id'>[] = [
   {
-    id: 'plan1',
     title: 'Growth Investment Plan',
     category: 'INVESTMENT',
     description: 'A high-growth potential investment plan suitable for long-term investors.',
@@ -15,7 +14,6 @@ export const initialPlans: Plan[] = [
     imageUrl: 'https://placehold.co/600x400.png',
   },
   {
-    id: 'plan2',
     title: 'Comprehensive Health Insurance',
     category: 'INSURANCE',
     description: 'Full coverage health insurance for you and your family.',
@@ -24,7 +22,6 @@ export const initialPlans: Plan[] = [
     imageUrl: 'https://placehold.co/600x400.png',
   },
   {
-    id: 'plan3',
     title: 'Secure Fixed Deposit',
     category: 'FD',
     description: 'Guaranteed returns with our secure fixed deposit scheme.',
@@ -33,7 +30,6 @@ export const initialPlans: Plan[] = [
     imageUrl: 'https://placehold.co/600x400.png',
   },
   {
-    id: 'plan4',
     title: 'Easy Home Loan',
     category: 'LOAN',
     description: 'Get quick and easy home loans with attractive interest rates.',

@@ -99,8 +99,10 @@ async function seedInitialPlans() {
     console.log("No existing plans found in Firestore. Seeding initial plans...");
     const batch = writeBatch(db);
     initialPlans.forEach(plan => {
-      const planDocRef = doc(db, 'plans', plan.id); // Use predefined ID for seeding
-      batch.set(planDocRef, { ...plan, createdAt: serverTimestamp() });
+      // Use predefined ID for seeding if it exists, otherwise let Firestore generate one
+      const planDocRef = plan.id ? doc(db, 'plans', plan.id) : doc(collection(db, 'plans'));
+      const planData = { ...plan, id: planDocRef.id, createdAt: serverTimestamp() };
+      batch.set(planDocRef, planData);
     });
     await batch.commit();
     console.log(`${initialPlans.length} initial plans seeded successfully.`);
@@ -113,9 +115,9 @@ async function seedInitialPlans() {
 export async function getPlansAction(category?: PlanCategory): Promise<Plan[]> {
   console.log("Server Action: getPlansAction called - fetching from Firestore.");
   
-  await seedInitialPlans().catch(err => console.error("Error during seeding:", err));
-
   try {
+    await seedInitialPlans();
+
     const plansCollectionRef = collection(db, 'plans');
     let plansQuery;
     
@@ -325,5 +327,3 @@ export async function updateApplicationStatusAction(applicationId: string, newSt
     return { error: `Failed to update application status: ${errorMessage}` };
   }
 }
-
-    
