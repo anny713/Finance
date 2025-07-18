@@ -20,6 +20,7 @@ export type Plan = {
   details?: string; // Additional details or how to apply
   iconName?: string; // Name of lucide-icon
   imageUrl?: string; // Optional image for the plan
+  createdAt?: string; // ISO date string, made optional
 };
 
 export type Application = {

@@ -141,10 +141,20 @@ export async function getPlansAction(category?: PlanCategory): Promise<Plan[]> {
       return plans;
     }
     
-    const plans: Plan[] = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    } as Plan));
+    const plans: Plan[] = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      const plan: Plan = {
+        id: doc.id,
+        title: data.title,
+        category: data.category,
+        description: data.description,
+        details: data.details,
+        iconName: data.iconName,
+        imageUrl: data.imageUrl,
+        createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : undefined,
+      };
+      return plan;
+    });
 
     console.log(`Fetched ${plans.length} plans.`);
     return plans;
