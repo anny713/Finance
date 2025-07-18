@@ -20,39 +20,51 @@ export default function AdminApplicationsPage() {
 
   useEffect(() => {
     const fetchApplications = () => {
+      setIsPageLoading(true);
       startTransition(async () => {
-        setIsPageLoading(true);
-        const fetchedApplications = await getApplicationsAction();
-        setApplications(fetchedApplications);
-        setIsPageLoading(false);
+        try {
+            const fetchedApplications = await getApplicationsAction();
+            setApplications(fetchedApplications);
+        } catch (error) {
+            console.error("Failed to fetch applications:", error);
+            toast({
+                title: "Error",
+                description: "Could not fetch applications.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsPageLoading(false);
+        }
       });
     };
     fetchApplications();
-  }, []);
+  }, [toast]);
 
   const handleStatusUpdate = async (applicationId: string, newStatus: 'APPROVED' | 'REJECTED') => {
     setUpdatingStatusId(applicationId);
-    const result = await updateApplicationStatusAction(applicationId, newStatus);
-    setUpdatingStatusId(null);
+    startTransition(async () => {
+      const result = await updateApplicationStatusAction(applicationId, newStatus);
+      setUpdatingStatusId(null);
 
-    if ('error' in result) {
-      toast({
-        title: "Update Failed",
-        description: result.error,
-        variant: "destructive",
-        icon: <AlertTriangle className="h-4 w-4" />,
-      });
-    } else {
-      toast({
-        title: `Application ${newStatus.toLowerCase()}`,
-        description: `Application ID ${applicationId} has been ${newStatus.toLowerCase()}. User would be notified.`,
-        className: newStatus === 'APPROVED' ? "bg-accent text-accent-foreground" : "bg-destructive text-destructive-foreground",
-        icon: newStatus === 'APPROVED' ? <CheckCircle className="h-4 w-4" /> : <XCircle className="h-4 w-4" />,
-      });
-      setApplications(prevApps =>
-        prevApps.map(app => (app.id === applicationId ? { ...app, status: newStatus } : app))
-      );
-    }
+      if ('error' in result) {
+        toast({
+          title: "Update Failed",
+          description: result.error,
+          variant: "destructive",
+          icon: <AlertTriangle className="h-4 w-4" />,
+        });
+      } else {
+        toast({
+          title: `Application ${newStatus.toLowerCase()}`,
+          description: `Application ID ${applicationId} has been ${newStatus.toLowerCase()}.`,
+          className: newStatus === 'APPROVED' ? "bg-accent text-accent-foreground" : "bg-destructive text-destructive-foreground",
+          icon: newStatus === 'APPROVED' ? <CheckCircle className="h-4 w-4" /> : <XCircle className="h-4 w-4" />,
+        });
+        setApplications(prevApps =>
+          prevApps.map(app => (app.id === applicationId ? { ...app, status: newStatus } : app))
+        );
+      }
+    });
   };
 
   const isLoading = isPageLoading || isPending;
@@ -69,7 +81,10 @@ export default function AdminApplicationsPage() {
     <div>
       <h1 className="text-3xl font-bold mb-8 font-headline">User Applications</h1>
       {applications.length === 0 ? (
-        <p className="text-muted-foreground">No applications found.</p>
+        <div className="text-center py-10 border-2 border-dashed rounded-lg">
+          <p className="text-lg font-semibold">No Applications Found</p>
+          <p className="text-muted-foreground mt-2">When users apply for plans, their applications will appear here.</p>
+        </div>
       ) : (
         <Table>
           <TableCaption>A list of user applications for financial plans.</TableCaption>

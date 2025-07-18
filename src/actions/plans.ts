@@ -18,7 +18,8 @@ import {
   deleteDoc,
   where,
   Timestamp,
-  writeBatch
+  writeBatch,
+  collectionGroup
 } from 'firebase/firestore';
 
 export async function createPlanAction(planData: Omit<Plan, 'id'>): Promise<Plan | { error: string }> {
@@ -63,8 +64,6 @@ export async function updatePlanAction(planId: string, planData: Partial<Omit<Pl
         details: updatedPlanData.details,
         iconName: updatedPlanData.iconName,
         imageUrl: updatedPlanData.imageUrl,
-        // createdAt: updatedPlanData.createdAt?.toDate ? updatedPlanData.createdAt.toDate().toISOString() : undefined,
-        // updatedAt: updatedPlanData.updatedAt?.toDate ? updatedPlanData.updatedAt.toDate().toISOString() : undefined,
     };
     console.log("Plan updated in Firestore:", planId);
     return planToReturn;
@@ -99,8 +98,7 @@ async function seedInitialPlans() {
     console.log("No existing plans found in Firestore. Seeding initial plans...");
     const batch = writeBatch(db);
     initialPlans.forEach(plan => {
-      // Use predefined ID for seeding if it exists, otherwise let Firestore generate one
-      const planDocRef = plan.id ? doc(db, 'plans', plan.id) : doc(collection(db, 'plans'));
+      const planDocRef = doc(collection(db, 'plans'));
       const planData = { ...plan, id: planDocRef.id, createdAt: serverTimestamp() };
       batch.set(planDocRef, planData);
     });
@@ -115,34 +113,39 @@ async function seedInitialPlans() {
 export async function getPlansAction(category?: PlanCategory): Promise<Plan[]> {
   console.log("Server Action: getPlansAction called - fetching from Firestore.");
   
-  try {
+  // No need to await seed here every time, let's make it more efficient
+  const plansCollectionRef = collection(db, 'plans');
+  const existingPlansSnapshot = await getDocs(query(plansCollectionRef, where('title', '!=', '')));
+  if (existingPlansSnapshot.empty) {
     await seedInitialPlans();
+  }
 
-    const plansCollectionRef = collection(db, 'plans');
+  try {
     let plansQuery;
-    
     if (category) {
-      plansQuery = query(plansCollectionRef, where('category', '==', category), orderBy('createdAt', 'desc'));
+      plansQuery = query(plansCollectionRef, where('category', '==', category), orderBy('title', 'asc'));
     } else {
-      plansQuery = query(plansCollectionRef, orderBy('createdAt', 'desc')); 
+      plansQuery = query(plansCollectionRef, orderBy('title', 'asc')); 
     }
 
     const querySnapshot = await getDocs(plansQuery);
     
-    const plans: Plan[] = [];
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      plans.push({
+    if (querySnapshot.empty && !existingPlansSnapshot.empty) {
+      // This case might happen right after seeding, let's re-fetch
+      const freshSnapshot = await getDocs(query(plansCollectionRef, orderBy('title', 'asc')));
+       const plans: Plan[] = freshSnapshot.docs.map(doc => ({
         id: doc.id,
-        title: data.title,
-        category: data.category,
-        description: data.description,
-        details: data.details,
-        iconName: data.iconName,
-        imageUrl: data.imageUrl,
-        // createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : new Date(0).toISOString(), 
-      } as Plan);
-    });
+        ...doc.data(),
+      } as Plan));
+       console.log(`Fetched ${plans.length} plans on retry.`);
+      return plans;
+    }
+    
+    const plans: Plan[] = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    } as Plan));
+
     console.log(`Fetched ${plans.length} plans.`);
     return plans;
   } catch (e) {
@@ -167,7 +170,6 @@ export async function getPlanByIdAction(id: string): Promise<Plan | undefined> {
         details: data.details,
         iconName: data.iconName,
         imageUrl: data.imageUrl,
-        // createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : undefined, 
       };
       console.log("Plan found:", plan);
       return plan;
@@ -201,7 +203,9 @@ export async function applyForPlanAction(planId: string, applicationDetails: Pla
   }
 
   try {
-    const applicationsCollectionRef = collection(db, 'planApplications');
+    // We will now write to a top-level 'applications' collection for admin querying
+    const applicationsCollectionRef = collection(db, 'applications');
+    
     const newApplicationData = {
       applicantName: applicationDetails.name,
       applicantMobile: applicationDetails.mobile,
@@ -211,19 +215,17 @@ export async function applyForPlanAction(planId: string, applicationDetails: Pla
       planCategory: plan.category,
       appliedAt: serverTimestamp(), 
       status: 'PENDING',
-      userId: applicationDetails.userId || null,
+      userId: applicationDetails.userId || null, // Capture userId if available
     };
 
     const docRef = await addDoc(applicationsCollectionRef, newApplicationData);
     
-    // Construct application to return, handling potential timestamp conversion for appliedAt
-    const createdDocSnap = await getFirestoreDoc(docRef); // Fetch to get server timestamp
+    const createdDocSnap = await getFirestoreDoc(docRef);
     if (!createdDocSnap.exists()) {
         return { error: "Failed to create application and retrieve details." };
     }
     const createdData = createdDocSnap.data();
     const appliedAt = createdData.appliedAt instanceof Timestamp ? createdData.appliedAt.toDate().toISOString() : new Date().toISOString();
-
 
     const newApplication: Application = {
       id: docRef.id,
@@ -239,6 +241,14 @@ export async function applyForPlanAction(planId: string, applicationDetails: Pla
     };
     
     console.log("Application submitted to Firestore with ID:", docRef.id);
+    
+    // If user is logged in, also add a copy to their own subcollection
+    if (applicationDetails.userId) {
+        const userApplicationsRef = collection(db, 'users', applicationDetails.userId, 'applications');
+        await addDoc(userApplicationsRef, newApplicationData);
+        console.log(`Application copy saved for user ${applicationDetails.userId}`);
+    }
+
     return newApplication;
 
   } catch (e) {
@@ -251,19 +261,15 @@ export async function applyForPlanAction(planId: string, applicationDetails: Pla
 export async function getApplicationsAction(): Promise<Application[]> {
   console.log("Server Action: getApplicationsAction called - fetching from Firestore.");
   try {
-    const applicationsCollectionRef = collection(db, 'planApplications');
+    // Fetch from the top-level 'applications' collection for the admin view
+    const applicationsCollectionRef = collection(db, 'applications');
     const q = query(applicationsCollectionRef, orderBy('appliedAt', 'desc'));
     const querySnapshot = await getDocs(q);
     
     const applications: Application[] = [];
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      let appliedAtISO = new Date(0).toISOString(); 
-      if (data.appliedAt && typeof data.appliedAt.toDate === 'function') {
-        appliedAtISO = (data.appliedAt as Timestamp).toDate().toISOString();
-      } else if (data.appliedAt) {
-        appliedAtISO = new Date(data.appliedAt).toISOString();
-      }
+      const appliedAt = data.appliedAt instanceof Timestamp ? data.appliedAt.toDate().toISOString() : new Date().toISOString();
 
       applications.push({
         id: doc.id,
@@ -273,12 +279,12 @@ export async function getApplicationsAction(): Promise<Application[]> {
         planId: data.planId,
         planTitle: data.planTitle,
         planCategory: data.planCategory,
-        appliedAt: appliedAtISO,
+        appliedAt: appliedAt,
         status: data.status,
         userId: data.userId,
       } as Application);
     });
-    console.log(`Fetched ${applications.length} applications.`);
+    console.log(`Fetched ${applications.length} applications from top-level collection.`);
     return applications;
   } catch (e) {
     console.error("Error fetching applications from Firestore:", e);
@@ -289,10 +295,11 @@ export async function getApplicationsAction(): Promise<Application[]> {
 export async function updateApplicationStatusAction(applicationId: string, newStatus: 'APPROVED' | 'REJECTED'): Promise<Application | { error: string }> {
   console.log(`Server Action: updateApplicationStatusAction called for ID: ${applicationId}, new status: ${newStatus}`);
   try {
-    const applicationDocRef = doc(db, 'planApplications', applicationId);
+    // Update the document in the top-level collection
+    const applicationDocRef = doc(db, 'applications', applicationId);
     await updateDoc(applicationDocRef, {
       status: newStatus,
-      updatedAt: serverTimestamp() // Add an 'updatedAt' timestamp
+      updatedAt: serverTimestamp()
     });
 
     const updatedDocSnap = await getFirestoreDoc(applicationDocRef);
@@ -300,12 +307,7 @@ export async function updateApplicationStatusAction(applicationId: string, newSt
       return { error: "Failed to retrieve updated application." };
     }
     const data = updatedDocSnap.data();
-    let appliedAtISO = new Date(0).toISOString(); 
-    if (data.appliedAt && typeof data.appliedAt.toDate === 'function') {
-      appliedAtISO = (data.appliedAt as Timestamp).toDate().toISOString();
-    } else if (data.appliedAt) {
-      appliedAtISO = new Date(data.appliedAt).toISOString();
-    }
+    const appliedAt = data.appliedAt instanceof Timestamp ? data.appliedAt.toDate().toISOString() : new Date().toISOString();
     
     const updatedApplication: Application = {
       id: updatedDocSnap.id,
@@ -315,11 +317,22 @@ export async function updateApplicationStatusAction(applicationId: string, newSt
       planId: data.planId,
       planTitle: data.planTitle,
       planCategory: data.planCategory,
-      appliedAt: appliedAtISO,
+      appliedAt: appliedAt,
       status: data.status,
       userId: data.userId,
     };
-    console.log(`Application ${applicationId} status updated to ${newStatus}. User would be notified.`);
+
+    // If there's a userId, try to update the user's copy as well
+    if (data.userId) {
+        const userAppQuery = query(collection(db, `users/${data.userId}/applications`), where("planId", "==", data.planId), where("applicantName", "==", data.applicantName));
+        const userAppSnapshot = await getDocs(userAppQuery);
+        userAppSnapshot.forEach(async (docToUpdate) => {
+            await updateDoc(docToUpdate.ref, { status: newStatus, updatedAt: serverTimestamp() });
+            console.log(`Updated user-side application status for ${docToUpdate.id}`);
+        });
+    }
+
+    console.log(`Application ${applicationId} status updated to ${newStatus}.`);
     return updatedApplication;
   } catch (e) {
     console.error(`Error updating application status for ${applicationId}:`, e);
