@@ -116,10 +116,13 @@ export async function getPlansAction(category?: PlanCategory): Promise<Plan[]> {
   await seedInitialPlans().catch(err => console.error("Error during seeding:", err));
 
   try {
-    let plansQuery = query(collection(db, 'plans'), orderBy('createdAt', 'desc')); 
+    const plansCollectionRef = collection(db, 'plans');
+    let plansQuery;
     
     if (category) {
-      plansQuery = query(collection(db, 'plans'), where('category', '==', category), orderBy('createdAt', 'desc'));
+      plansQuery = query(plansCollectionRef, where('category', '==', category), orderBy('createdAt', 'desc'));
+    } else {
+      plansQuery = query(plansCollectionRef, orderBy('createdAt', 'desc')); 
     }
 
     const querySnapshot = await getDocs(plansQuery);

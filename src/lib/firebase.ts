@@ -3,11 +3,7 @@ import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getAuth, type Auth } from 'firebase/auth'; // Import Firebase Auth
 
-// Your web app's Firebase configuration
-// This configuration is now hardcoded as per your request.
-// For production, consider moving these back to environment variables.
-// You can find these values in your Firebase project settings:
-// Project settings > General > Your apps > Web app > Firebase SDK snippet > Config
+
 const firebaseConfig = {
   apiKey: "AIzaSyD1A3k5ibx7QJEbmiataDIf3iRTsj8rF7I",
   authDomain: "my-finance-flow-app.firebaseapp.com",

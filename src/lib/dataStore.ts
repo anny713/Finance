@@ -1,5 +1,5 @@
 
-import type { Plan } from '@/types';
+import type { Application, Plan } from '@/types';
 
 // const PLANS_KEY = 'financeFlow_plans'; // Removed, plans are now in Firestore
 
