@@ -45,3 +45,12 @@ export type NavItem = {
   loggedOutOnly?: boolean;
   children?: NavItem[]; // For dropdown menus
 };
+
+export type ContactSubmission = {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  createdAt: string; // ISO date string
+};
