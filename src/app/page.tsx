@@ -1,9 +1,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, BarChart2, Shield, LayoutGrid, Sparkles, UserCog, LandmarkIcon, FileText } from "lucide-react"; 
+import { CheckCircle, BarChart2, Shield, LayoutGrid, Sparkles, UserCog, LandmarkIcon, FileText, UserPlus, ClipboardList } from "lucide-react"; 
 import Image from "next/image";
 import Link from "next/link";
+import React from 'react';
 
 export default function HomePage() {
   return (
@@ -61,22 +62,19 @@ export default function HomePage() {
             step="1"
             title="Add Your Details"
             description="Create your profile by adding your name, mobile, and income information to get personalized services."
-            imageUrl="https://placehold.co/600x400.png"
-            aiHint="profile creation"
+            icon={<UserPlus className="h-16 w-16 text-primary" />}
           />
           <StepCard
             step="2"
             title="Select a Plan"
             description="Browse our diverse range of investment, insurance, and loan plans to find the one that fits you."
-            imageUrl="https://placehold.co/600x400.png"
-            aiHint="financial plans"
+            icon={<ClipboardList className="h-16 w-16 text-primary" />}
           />
           <StepCard
             step="3"
             title="Apply With One Click"
             description="Easily apply for your chosen plan with your saved details. It's fast, simple, and secure."
-            imageUrl="https://placehold.co/600x400.png"
-            aiHint="application form"
+            icon={<CheckCircle className="h-16 w-16 text-accent" />}
           />
         </div>
       </section>
@@ -105,15 +103,14 @@ interface StepCardProps {
   step: string;
   title: string;
   description: string;
-  imageUrl: string;
-  aiHint: string;
+  icon: React.ReactNode;
 }
 
-function StepCard({ step, title, description, imageUrl, aiHint }: StepCardProps) {
+function StepCard({ step, title, description, icon }: StepCardProps) {
   return (
     <div className="flex flex-col items-center p-4">
-      <div className="relative w-full h-40 mb-4 rounded-lg overflow-hidden shadow-md">
-        <Image src={imageUrl} alt={title} fill className="object-cover" data-ai-hint={aiHint} />
+       <div className="w-full h-40 mb-4 flex items-center justify-center">
+        {icon}
       </div>
       <div className="bg-primary text-primary-foreground rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold mb-3">
         {step}
