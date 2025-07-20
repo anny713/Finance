@@ -13,16 +13,15 @@ export default function HomePage() {
       <section className="text-center py-12 md:py-20 bg-gradient-to-br from-primary/10 via-background to-accent/10 rounded-xl shadow-lg">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl md:text-5xl font-bold font-headline mb-6">
-            Welcome to <span className="text-primary">Finance Flow</span>
+            Smart Financial Planning, Simplified
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Your trusted platform for financial plan management and AI-powered insights. Admins manage plans and view applications.
+            Discover personalized investment plans, get AI-powered advice, and take control of your financial future with confidence.
           </p>
           <div className="flex flex-wrap justify-center items-center gap-4">
             <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
               <Link href="/plans">Explore Plans</Link>
             </Button>
-            {/* Admin Login button removed */}
           </div>
         </div>
       </section>
