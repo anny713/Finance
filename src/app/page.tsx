@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, BarChart2, Shield, LayoutGrid, Sparkles, UserCog, LandmarkIcon, FileText, UserPlus, ClipboardList } from "lucide-react"; 
+import { CheckCircle, LayoutGrid, Sparkles, UserPlus, ClipboardList, Shield, BrainCircuit } from "lucide-react"; 
 import Image from "next/image";
 import Link from "next/link";
 import React from 'react';
@@ -29,27 +29,27 @@ export default function HomePage() {
 
       {/* Features Section */}
       <section className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-12 font-headline">Platform Features</h2>
+        <h2 className="text-3xl font-bold text-center mb-12 font-headline">User Benefits of Our Platform</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           <FeatureCard
-            icon={<UserCog className="h-10 w-10 text-primary" />}
-            title="Admin Management"
-            description="Admins can create, update, and manage financial plans. View submitted applications."
+            icon={<BrainCircuit className="h-10 w-10 text-primary" />}
+            title="Personalized Recommendations"
+            description="Get AI-powered investment advice tailored to your income and financial goals."
           />
           <FeatureCard
             icon={<LayoutGrid className="h-10 w-10 text-primary" />}
-            title="Diverse Plans"
-            description="Offer investment, insurance, FD, and loan options for users to explore."
+            title="Wide Choice of Plans"
+            description="Explore a diverse range of financial plans including investments, insurance, and loans."
           />
            <FeatureCard
-            icon={<Sparkles className="h-10 w-10 text-primary" />}
-            title="AI Recommendations"
-            description="Admins can leverage AI-powered recommendations for financial planning insights (via admin tools)."
+            icon={<CheckCircle className="h-10 w-10 text-primary" />}
+            title="Easy Application Process"
+            description="Apply for any plan quickly and securely with our streamlined, user-friendly process."
           />
           <FeatureCard
             icon={<Shield className="h-10 w-10 text-primary" />}
-            title="Secure & Reliable"
-            description="Built with security in mind to protect your data and operations."
+            title="Secure & Transparent"
+            description="Your data is protected with industry-standard security, ensuring a safe experience."
           />
         </div>
       </section>

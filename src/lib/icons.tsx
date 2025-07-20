@@ -21,7 +21,8 @@ import {
   HelpCircle, // Default icon
   Settings,
   SlidersHorizontal,
-  Coins
+  Coins,
+  BrainCircuit
 } from 'lucide-react';
 
 const iconMap: Record<string, LucideIcon> = {
@@ -47,6 +48,7 @@ const iconMap: Record<string, LucideIcon> = {
   SlidersHorizontal,
   Coins,
   HelpCircle,
+  BrainCircuit,
 };
 
 export const getIconComponent = (iconName: string): LucideIcon => {
