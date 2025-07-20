@@ -7,7 +7,6 @@ import type { Plan, PlanCategory } from '@/types';
 import { getPlansAction } from '@/actions/plans';
 import { PlanCard } from '@/components/plans/plan-card';
 import { PlanCategoriesTabs } from '@/components/plans/plan-categories-tabs';
-// import { useAuth } from '@/hooks/useAuth'; // No longer needed for page access control
 import { Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
@@ -18,15 +17,12 @@ export default function PlansPage() {
 
 function LoadingPlans() {
   return (
-    // Adjusted loader to be a simple spinner without min-height
-    // The surrounding content will handle layout
     <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
       <Loader2 className="h-8 w-8 animate-spin text-primary" />
     </div>
   );
 }
 function PlansContent() {
-  // const { user, isLoading: authLoading } = useAuth(); // No longer needed for page access control
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -37,12 +33,6 @@ function PlansContent() {
     (searchParams.get('category') as PlanCategory | 'ALL') || 'ALL'
   );
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
-
-  // useEffect(() => { // Removed: Users no longer need to be logged in to see this page
-  //   if (!authLoading && !user) {
-  //     router.push('/login?redirect=/plans');
-  //   }
-  // }, [user, authLoading, router]);
 
   const fetchPlans = useCallback(async () => {
     setIsLoading(true);
@@ -107,7 +97,7 @@ function PlansContent() {
 
         <PlanCategoriesTabs currentCategory={currentCategory} onCategoryChange={handleCategoryChange} />
 
-        {isLoading && filteredPlans.length === 0 ? ( // Show loader when filtering or initial load
+        {isLoading && filteredPlans.length === 0 ? ( 
            <div className="flex justify-center items-center min-h-[300px]">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
            </div>
