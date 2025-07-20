@@ -1,12 +1,11 @@
 
 'use client';
 
-import Image from 'next/image';
 import type { Plan } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { getIconComponent } from '@/lib/icons';
-import { ApplyPlanDialog } from './apply-plan-dialog'; // Import the new dialog
+import Link from 'next/link';
 
 interface PlanCardProps {
   plan: Plan;
@@ -36,11 +35,11 @@ export function PlanCard({ plan }: PlanCardProps) {
         )}
       </CardContent>
       <CardFooter className="border-t pt-4">
-        <ApplyPlanDialog plan={plan}>
-          <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-            Apply Now
-          </Button>
-        </ApplyPlanDialog>
+        <Button asChild className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+            <Link href={`/plans/${plan.id}/apply`}>
+                Apply Now
+            </Link>
+        </Button>
       </CardFooter>
     </Card>
   );
