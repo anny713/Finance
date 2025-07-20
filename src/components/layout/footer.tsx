@@ -1,15 +1,20 @@
 
 import Link from 'next/link';
+import { Briefcase } from 'lucide-react';
 
 export function Footer() {
   return (
     <footer className="bg-card border-t border-border py-6">
       <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-center md:text-left">
         <div className="mb-4 md:mb-0">
-          <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} Finance Flow. All rights reserved.
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
+          <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+            <Briefcase className="h-5 w-5 text-primary" />
+            <p className="text-sm font-semibold">
+              Finance Flow
+            </p>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            &copy; {new Date().getFullYear()} All rights reserved.
             Your trusted partner in financial planning.
           </p>
         </div>
