@@ -43,4 +43,5 @@ export type NavItem = {
   adminOnly?: boolean;
   loggedInOnly?: boolean;
   loggedOutOnly?: boolean;
+  children?: NavItem[]; // For dropdown menus
 };

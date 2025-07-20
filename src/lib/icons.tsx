@@ -22,7 +22,12 @@ import {
   Settings,
   SlidersHorizontal,
   Coins,
-  BrainCircuit
+  BrainCircuit,
+  Car,
+  GraduationCap,
+  HandCoins,
+  Building2,
+  Tractor
 } from 'lucide-react';
 
 const iconMap: Record<string, LucideIcon> = {
@@ -49,6 +54,11 @@ const iconMap: Record<string, LucideIcon> = {
   Coins,
   HelpCircle,
   BrainCircuit,
+  Car,
+  GraduationCap,
+  HandCoins,
+  Building2,
+  Tractor
 };
 
 export const getIconComponent = (iconName: string): LucideIcon => {

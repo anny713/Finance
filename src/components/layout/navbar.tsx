@@ -3,12 +3,18 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Briefcase, Home, LayoutGrid, UserCircle2, LogOut, LogIn, ShieldCheck, Sparkles, Menu } from 'lucide-react';
-import { Button } from '@/components/ui/button'; // Assuming you have a Button component
-import { cn } from '@/lib/utils'; // Assuming you have a utility for class names
-import { usePathname } from 'next/navigation'; // Assuming you are using next/navigation for pathname
-import { useAuth } from '@/hooks/useAuth'; // Assuming you have an auth hook
-import type { NavItem } from '@/types'; // Assuming you have a NavItem type
+import { Briefcase, Home, LayoutGrid, UserCircle2, LogOut, LogIn, ShieldCheck, Menu, LineChart, Shield, Landmark, Car, GraduationCap, Coins, HandCoins, Building2, Tractor, ChevronDown } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { usePathname } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
+import type { NavItem } from '@/types';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function Navbar() {
   const { user, logout, isLoading } = useAuth();
@@ -17,7 +23,22 @@ export function Navbar() {
 
   const navItems: NavItem[] = [
     { href: '/', label: 'Home Page', icon: Home },
-    { href: '/plans', label: 'Plans', icon: LayoutGrid },
+    { href: '/plans?category=INVESTMENT', label: 'Investment', icon: LineChart },
+    { href: '/plans?category=INSURANCE', label: 'Insurance', icon: Shield },
+    { 
+      href: '/plans?category=LOAN', 
+      label: 'Loan Section', 
+      icon: Landmark,
+      children: [
+        { href: '/plans?loanType=Home', label: 'Home Loan', icon: Landmark },
+        { href: '/plans?loanType=Car', label: 'Car Loan', icon: Car },
+        { href: '/plans?loanType=Education', label: 'Education Loan', icon: GraduationCap },
+        { href: '/plans?loanType=Gold', label: 'Gold Loan', icon: Coins },
+        { href: '/plans?loanType=Personal', label: 'Personal Loan', icon: HandCoins },
+        { href: '/plans?loanType=Business', label: 'Business Loan', icon: Building2 },
+        { href: '/plans?loanType=Agriculture', label: 'Agriculture Loan', icon: Tractor },
+      ]
+    },
     { href: '/login', label: 'Admin Login', icon: LogIn, loggedOutOnly: true },
  ];
 
@@ -25,12 +46,52 @@ export function Navbar() {
     if (isLoading) return [];
     return navItems.filter(item => {
       if (item.adminOnly && (!user || !user.isAdmin)) return false;
-      if (item.href === '/profile' && !user) return false;
-
-      if (item.loggedInOnly && !user) return false; // Generic loggedInOnly check
       if (item.loggedOutOnly && user) return false;
       return true;
     });
+  };
+
+  const renderNavItem = (item: NavItem) => {
+    if (item.children) {
+      return (
+        <DropdownMenu key={item.label}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className={cn(
+                'flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary px-2',
+                pathname.includes(item.href) ? 'text-primary' : 'text-foreground/80'
+              )}>
+              {item.icon && <item.icon className="h-4 w-4 hidden sm:inline-block" />}
+              {item.label}
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            {item.children.map(child => (
+              <DropdownMenuItem key={child.href} asChild>
+                <Link href={child.href} className="flex items-center gap-2">
+                  {child.icon && <child.icon className="h-4 w-4" />}
+                  {child.label}
+                </Link>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    }
+
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        className={cn(
+          'flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary',
+          pathname === item.href ? 'text-primary' : 'text-foreground/80'
+        )}
+      >
+        {item.icon && <item.icon className="h-4 w-4 hidden sm:inline-block" />}
+        {item.label}
+      </Link>
+    );
   };
 
   return (
@@ -42,25 +103,8 @@ export function Navbar() {
             <span className="text-xl font-headline font-bold">Finance Flow</span>
           </Link>
         </div>
-        {/* Placeholder for navigation links */}
- <div className="hidden items-center gap-2 sm:gap-4 md:flex">
-          {' '}
-          {/* Hide on mobile */}
-          {getFilteredNavItems().map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                'flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary',
-                // Explicitly set text color for visibility
-                pathname === item.href ? 'text-primary' : 'text-foreground',
-                pathname === item.href ? 'text-primary' : 'text-foreground/80'
-              )}
-            >
-              {item.icon && <item.icon className="h-4 w-4 hidden sm:inline-block" />}{' '}
-              {item.label}
-            </Link>
-          ))}
+        <div className="hidden items-center gap-2 sm:gap-4 md:flex">
+          {getFilteredNavItems().map((item) => renderNavItem(item))}
           {user && (
             <>
               {user.isAdmin && (
@@ -98,36 +142,51 @@ export function Navbar() {
           )}
         </div>
 
- {/* Hamburger menu for mobile - Placed at the end of the nav bar on mobile */}
- <div className="md:hidden flex items-center"> {/* Use flex to align button */}
- <Button
- aria-label="Toggle navigation"
- onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
- variant="ghost" // Use ghost variant for a cleaner look
- size="icon"
- >
- <Menu className="h-6 w-6" />
-            </Button>
-          </div>
+        <div className="md:hidden flex items-center">
+          <Button
+            aria-label="Toggle navigation"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            variant="ghost"
+            size="icon"
+          >
+            <Menu className="h-6 w-6" />
+          </Button>
+        </div>
 
-
-
-        {/* Mobile Navigation Menu */}{' '}
-        {/* Toggle visibility based on isMobileMenuOpen */}{' '}
         {isMobileMenuOpen && (
           <div className="absolute top-16 left-0 right-0 bg-card border-b border-border shadow-sm flex flex-col items-start p-4 space-y-4 md:hidden z-50">
             {getFilteredNavItems().map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  'flex items-center gap-2 text-lg font-medium transition-colors hover:text-primary',
-                  pathname === item.href ? 'text-primary' : 'text-foreground'
-                )}
-                onClick={() => setIsMobileMenuOpen(false)} // Close menu on item click
-              >
-                {item.icon && <item.icon className="h-5 w-5" />} {item.label}
-              </Link>
+              item.children ? (
+                <div key={item.label} className="w-full">
+                  <span className='flex items-center gap-2 text-lg font-medium text-foreground/80'>
+                    {item.icon && <item.icon className="h-5 w-5" />} {item.label}
+                  </span>
+                  <div className="flex flex-col pl-6 mt-2 space-y-3">
+                     {item.children.map(child => (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          className={cn('flex items-center gap-2 text-md font-medium transition-colors hover:text-primary', pathname === child.href ? 'text-primary' : 'text-foreground')}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                           {child.icon && <child.icon className="h-5 w-5" />} {child.label}
+                        </Link>
+                     ))}
+                  </div>
+                </div>
+              ) : (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    'flex items-center gap-2 text-lg font-medium transition-colors hover:text-primary',
+                    pathname === item.href ? 'text-primary' : 'text-foreground'
+                  )}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {item.icon && <item.icon className="h-5 w-5" />} {item.label}
+                </Link>
+              )
             ))}
              {user && (
                 <>
