@@ -55,7 +55,7 @@ export default function HomePage() {
 
       {/* How it Works Section */}
       <section className="container mx-auto px-4 py-12 bg-card rounded-xl shadow-lg">
-        <h2 className="text-3xl font-bold text-center mb-12 font-headline">Get Started in 3 Easy Steps</h2>
+        <h2 className="text-3xl font-bold text-center mb-12 font-headline">User Easy Steps</h2>
         <div className="grid md:grid-cols-3 gap-8 text-center">
           <StepCard
             step="1"
