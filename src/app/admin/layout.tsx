@@ -2,21 +2,38 @@
 'use client';
 
 import { useEffect, type ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { 
+  Loader2, 
+  ShieldAlert, 
+  LayoutDashboard, 
+  FileText, 
+  ListChecks, 
+  UserCircle, 
+  LogOut,
+  Briefcase
+} from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, logout } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!isLoading && (!user || !user.isAdmin)) {
       router.push('/login?redirect=/admin');
     }
   }, [user, isLoading, router]);
+
+  const adminNavItems = [
+    { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/admin/plans', label: 'Manage Plans', icon: FileText },
+    { href: '/admin/applications', label: 'Applications', icon: ListChecks },
+  ];
 
   if (isLoading) {
     return (
@@ -41,16 +58,45 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="flex flex-col md:flex-row gap-8">
-      <aside className="md:w-64">
-        <h2 className="text-xl font-semibold mb-4 font-headline">Admin Menu</h2>
-        <nav className="space-y-2">
-          <Link href="/admin" className="flex items-center p-2 rounded-md hover:bg-muted transition-colors">Dashboard</Link>
-          <Link href="/admin/plans" className="flex items-center p-2 rounded-md hover:bg-muted transition-colors">Manage Plans</Link>
-          <Link href="/admin/applications" className="flex items-center p-2 rounded-md hover:bg-muted transition-colors">View Applications</Link>
+    <div className="flex min-h-screen bg-muted/40">
+      <aside className="hidden md:flex flex-col w-64 bg-background border-r">
+        <div className="p-4 border-b">
+          <Link href="/" className="flex items-center gap-2 text-primary font-bold">
+            <Briefcase className="h-6 w-6" />
+            <span className="text-lg font-headline">Finance Flow</span>
+          </Link>
+        </div>
+        <nav className="flex-grow p-4 space-y-2">
+          {adminNavItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                pathname === item.href && 'bg-muted text-primary'
+              )}
+            >
+              <item.icon className="h-4 w-4" />
+              {item.label}
+            </Link>
+          ))}
         </nav>
+        <div className="p-4 border-t mt-auto">
+          <div className="space-y-2">
+            <Button variant="ghost" className="w-full justify-start" asChild>
+              <Link href="/profile">
+                <UserCircle className="mr-2 h-4 w-4" /> Profile
+              </Link>
+            </Button>
+            <Button variant="ghost" className="w-full justify-start" onClick={logout}>
+              <LogOut className="mr-2 h-4 w-4" /> Logout
+            </Button>
+          </div>
+        </div>
       </aside>
-      <main className="flex-1">{children}</main>
+      <div className="flex flex-col flex-1">
+        <main className="flex-1 p-4 md:p-8">{children}</main>
+      </div>
     </div>
   );
 }
