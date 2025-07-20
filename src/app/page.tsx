@@ -59,24 +59,24 @@ export default function HomePage() {
         <div className="grid md:grid-cols-3 gap-8 text-center">
           <StepCard
             step="1"
-            title="Secure Admin Access"
-            description="Log in with your administrator credentials to manage the platform and financial plans."
-            imageUrl="https://lh3.googleusercontent.com/gg/AAHar4e65gXL7cA1YXy2UKMbylB6_BsXq0mN88ptKAzzQzZV1VOc1mpVBNDd02_Qy8T4noVeAP75WFfvuyMofSGuD7ASl-awUJiLVH-pyhDgPzdEa4YaIjhJiDM6CfxoeOou5dVTIE4F-C7Az25yX95mGRtB565EEdbE-5jQcxxAgSIt_hYV2nY_Tnx0msLiwwrv_gw-Pb2hO5AlT2pBangpwEJIiD6cI7NhLm1hwgY3HA6pKipZ1NWc0Gkeib7NDEUAnpYoBk6Tfgsr-AX3jJzym-B_ijg00a3_8zZcNxSxpDEwretXZ7AYLjHJCLP53SuqIsbMO2hUMyadmi-qQ_mYE1YC=s1024"
-            aiHint="admin login"
+            title="Add Your Details"
+            description="Create your profile by adding your name, mobile, and income information to get personalized services."
+            imageUrl="https://placehold.co/600x400.png"
+            aiHint="profile creation"
           />
           <StepCard
             step="2"
-            title="Post & Manage Plans"
-            description="Admins can easily post new financial plans (investment, insurance, etc.) and update existing ones."
+            title="Select a Plan"
+            description="Browse our diverse range of investment, insurance, and loan plans to find the one that fits you."
             imageUrl="https://placehold.co/600x400.png"
-            aiHint="dashboard interface"
+            aiHint="financial plans"
           />
           <StepCard
             step="3"
-            title="Review Applications"
-            description="View applications submitted by users for the plans you've posted."
+            title="Apply With One Click"
+            description="Easily apply for your chosen plan with your saved details. It's fast, simple, and secure."
             imageUrl="https://placehold.co/600x400.png"
-            aiHint="admin panel"
+            aiHint="application form"
           />
         </div>
       </section>
