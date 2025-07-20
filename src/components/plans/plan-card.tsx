@@ -17,17 +17,6 @@ export function PlanCard({ plan }: PlanCardProps) {
 
   return (
     <Card className="shadow-lg hover:shadow-xl transition-shadow flex flex-col overflow-hidden rounded-lg">
-      {plan.imageUrl && (
-        <div className="relative w-full h-48">
-          <Image
-            src={plan.imageUrl}
-            alt={plan.title}
-            fill
-            className="object-cover"
-            data-ai-hint={`${plan.category.toLowerCase()} finance`}
-          />
-        </div>
-      )}
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="font-headline text-xl flex items-center gap-2">
